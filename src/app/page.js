@@ -1,19 +1,19 @@
 "use client";
-import {IoSparklesSharp} from "react-icons/io5";
-import {use, useEffect, useState} from "react";
+import { IoSparklesSharp } from "react-icons/io5";
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
-import {v4 as uuidv4} from "uuid";
-import {Input} from "@/components/ui/input";
-import {Button} from "@/components/ui/button";
+import { v4 as uuidv4 } from "uuid";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import MaxWidthWrapper from "@/components/common/max-width-wrapper";
-import {useMutation, useQuery} from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import {useToast} from "@/hooks/use-toast";
-import {useSession} from "next-auth/react";
-import {useRouter} from "next/navigation";
-import {formatDate} from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { formatDate } from "@/lib/utils";
 const categories = ["All", "Trending", "New", "Kids"];
-import {FaPlay} from "react-icons/fa";
+import { FaPlay } from "react-icons/fa";
 
 const videos = [
   {
@@ -61,7 +61,7 @@ const videos = [
 ];
 
 export default function Home() {
-  const {data: session} = useSession();
+  const { data: session } = useSession();
 
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState("");
@@ -69,16 +69,19 @@ export default function Home() {
   const [videos, setVidoes] = useState([]);
   const [filteredVideos, setFilteredVideos] = useState();
 
-  const {toast} = useToast();
+
+
+  const { toast } = useToast();
 
   const router = useRouter();
 
-  const {data, isLoading, isError} = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: "videos",
     queryFn: async () => {
       const response = await axios.get(
         "http://localhost:3000/api/video/getAllVideo"
       );
+     
       return response.data;
     },
     onSuccess: (data) => {
@@ -121,6 +124,7 @@ export default function Home() {
   });
 
   useEffect(() => {
+
     if (data) {
       console.log("Data:", data);
       setVidoes(data);
@@ -256,9 +260,8 @@ export default function Home() {
               {categories.map((category) => (
                 <p
                   key={category}
-                  className={`border px-4 py-2 shadow-md rounded-full text-lg cursor-pointer ${
-                    selectedCategory === category ? "bg-black text-white" : ""
-                  }`}
+                  className={`border px-4 py-2 shadow-md rounded-full text-lg cursor-pointer ${selectedCategory === category ? "bg-black text-white" : ""
+                    }`}
                   onClick={() => setSelectedCategory(category)}
                 >
                   {category}
