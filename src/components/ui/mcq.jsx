@@ -1,26 +1,19 @@
 "use client";
-import React, { useState } from 'react';
+import React from "react";
+import {Button} from "./button";
 
-const MCQQuestion = ({ question, options, correctAnswer, questionId }) => {
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(null);
-
-  const handleOptionChange = (option) => {
-    setSelectedOption(option);
-  };
-
-  const handleSubmit = () => {
-    setIsSubmitted(true);
-    if (selectedOption === correctAnswer) {
-      setIsCorrect(true);
-    } else {
-      setIsCorrect(false);
-    }
-  };
-
+const MCQQuestion = ({
+  question,
+  options,
+  correctAnswer,
+  questionId,
+  selectedOption,
+  isSubmitted,
+  onOptionChange,
+  onSubmit,
+}) => {
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+    <div className="w-full bg-white">
       <h2 className="text-xl font-semibold mb-4">{question}</h2>
       <div className="space-y-3">
         {options.map((option, index) => (
@@ -31,7 +24,7 @@ const MCQQuestion = ({ question, options, correctAnswer, questionId }) => {
               name={`mcq-${questionId}`} // Unique name for each question
               value={option}
               checked={selectedOption === option}
-              onChange={() => handleOptionChange(option)}
+              onChange={() => onOptionChange(option)}
               disabled={isSubmitted}
               className="form-radio h-5 w-5 text-blue-600"
             />
@@ -45,15 +38,27 @@ const MCQQuestion = ({ question, options, correctAnswer, questionId }) => {
         ))}
       </div>
       {!isSubmitted ? (
-        <button
-          onClick={handleSubmit}
-          className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors"
-        >
+        <Button onClick={onSubmit} className="mt-4">
           Submit
-        </button>
+        </Button>
       ) : (
-        <div className={`mt-4 text-lg ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
-          {isCorrect ? 'Correct Answer!' : 'Incorrect Answer'}
+        <div>
+          <div
+            className={`mt-4 text-lg ${
+              selectedOption === correctAnswer
+                ? "text-green-600"
+                : "text-red-600"
+            }`}
+          >
+            {selectedOption === correctAnswer
+              ? "Correct Answer!"
+              : "Incorrect Answer"}
+          </div>
+          {!selectedOption === correctAnswer && (
+            <div className="mt-2 text-gray-600">
+              Correct Answer: {correctAnswer}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -61,4 +66,3 @@ const MCQQuestion = ({ question, options, correctAnswer, questionId }) => {
 };
 
 export default MCQQuestion;
-

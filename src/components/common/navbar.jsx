@@ -21,10 +21,10 @@ function Navbar() {
             </Link>
             <div className="hidden md:flex md:items-center md:space-x-4 ml-8">
               <Link
-                href="/courses"
+                href="/video"
                 className="text-sm font-medium text-muted-foreground hover:text-primary"
               >
-                Courses
+                Videos
               </Link>
               <Link
                 href="/topics"
