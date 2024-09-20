@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import {Button} from "./button";
+import { Button } from "./button";
 
 const MCQQuestion = ({
   question,
@@ -11,26 +11,34 @@ const MCQQuestion = ({
   isSubmitted,
   onOptionChange,
   onSubmit,
+  setCorrectAnswers,
+  currentQuestionNumber,
 }) => {
+  console.log("correctAnswer ", correctAnswer);
   return (
-    <div className="w-full bg-white">
-      <h2 className="text-xl font-semibold mb-4">{question}</h2>
-      <div className="space-y-3">
+    <div className='w-full bg-white'>
+      <h2 className='text-xl font-semibold mb-4'>
+        {currentQuestionNumber}.{question}
+      </h2>
+      <div className='space-y-3'>
         {options.map((option, index) => (
-          <div key={index} className="flex items-center">
+          <div
+            key={index}
+            className='flex items-center'
+          >
             <input
-              type="radio"
+              type='radio'
               id={`option-${questionId}-${index}`}
               name={`mcq-${questionId}`} // Unique name for each question
               value={option}
               checked={selectedOption === option}
               onChange={() => onOptionChange(option)}
               disabled={isSubmitted}
-              className="form-radio h-5 w-5 text-blue-600"
+              className='form-radio h-5 w-5 text-blue-600'
             />
             <label
               htmlFor={`option-${questionId}-${index}`}
-              className="ml-3 text-gray-700"
+              className='ml-3 text-gray-700'
             >
               {option}
             </label>
@@ -38,7 +46,10 @@ const MCQQuestion = ({
         ))}
       </div>
       {!isSubmitted ? (
-        <Button onClick={onSubmit} className="mt-4">
+        <Button
+          onClick={onSubmit}
+          className='mt-4'
+        >
           Submit
         </Button>
       ) : (
@@ -50,15 +61,17 @@ const MCQQuestion = ({
                 : "text-red-600"
             }`}
           >
-            {selectedOption === correctAnswer
-              ? "Correct Answer!"
-              : "Incorrect Answer"}
+            {selectedOption === correctAnswer ? (
+              "Correct Answer!"
+            ) : (
+              <p>
+                <span>Incorrect Answer</span>
+                <p className='text-orange-500'>
+                  Correct Answer : {correctAnswer}
+                </p>
+              </p>
+            )}
           </div>
-          {!selectedOption === correctAnswer && (
-            <div className="mt-2 text-gray-600">
-              Correct Answer: {correctAnswer}
-            </div>
-          )}
         </div>
       )}
     </div>
