@@ -9,58 +9,13 @@ import {IoSparklesSharp} from "react-icons/io5";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
-const mcqs = [
-  {
-    question: "What is the capital of France?",
-    options: ["Berlin", "Madrid", "Paris", "Rome"],
-    correctAnswer: "Paris",
-  },
-  {
-    question: "Which planet is known as the Red Planet?",
-    options: ["Earth", "Venus", "Mars", "Jupiter"],
-    correctAnswer: "Mars",
-  },
-  {
-    question: "Who wrote 'Hamlet'?",
-    options: [
-      "Charles Dickens",
-      "William Shakespeare",
-      "J.K. Rowling",
-      "Mark Twain",
-    ],
-    correctAnswer: "William Shakespeare",
-  },
-  {
-    question: "What is the smallest prime number?",
-    options: ["0", "1", "2", "3"],
-    correctAnswer: "2",
-  },
-  {
-    question: "What is the chemical symbol for water?",
-    options: ["O2", "H2O", "CO2", "NaCl"],
-    correctAnswer: "H2O",
-  },
-  {
-    question: "Which country is known as the Land of the Rising Sun?",
-    options: ["China", "Japan", "Thailand", "South Korea"],
-    correctAnswer: "Japan",
-  },
-  {
-    question: "What is the hardest natural substance on Earth?",
-    options: ["Gold", "Diamond", "Iron", "Silver"],
-    correctAnswer: "Diamond",
-  },
-];
-
 const Page = () => {
   const [question, setQuestion] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [clientState, setClientState] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedOptions, setSelectedOptions] = useState(
-    Array(mcqs.length).fill(null)
-  );
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [isSubmitted, setIsSubmitted] = useState([]); // Track submission for each question
 
   useEffect(() => {
     setClientState(true); // Triggers after hydration
@@ -70,6 +25,49 @@ const Page = () => {
     return null; // Avoid rendering on the server
   }
 
+  const mcqs = [
+    {
+      question: "What is the capital of France?",
+      options: ["Berlin", "Madrid", "Paris", "Rome"],
+      correctAnswer: "Paris",
+    },
+    {
+      question: "Which planet is known as the Red Planet?",
+      options: ["Earth", "Venus", "Mars", "Jupiter"],
+      correctAnswer: "Mars",
+    },
+    {
+      question: "Who wrote 'Hamlet'?",
+      options: [
+        "Charles Dickens",
+        "William Shakespeare",
+        "J.K. Rowling",
+        "Mark Twain",
+      ],
+      correctAnswer: "William Shakespeare",
+    },
+    {
+      question: "What is the smallest prime number?",
+      options: ["0", "1", "2", "3"],
+      correctAnswer: "2",
+    },
+    {
+      question: "What is the chemical symbol for water?",
+      options: ["O2", "H2O", "CO2", "NaCl"],
+      correctAnswer: "H2O",
+    },
+    {
+      question: "Which country is known as the Land of the Rising Sun?",
+      options: ["China", "Japan", "Thailand", "South Korea"],
+      correctAnswer: "Japan",
+    },
+    {
+      question: "What is the hardest natural substance on Earth?",
+      options: ["Gold", "Diamond", "Iron", "Silver"],
+      correctAnswer: "Diamond",
+    },
+  ];
+
   const handleClick = () => {
     console.log(question);
     setIsLoading(true);
@@ -78,14 +76,12 @@ const Page = () => {
   const handleNext = () => {
     if (currentQuestionIndex < mcqs.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
-      setIsSubmitted(false);
     }
   };
 
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex((prev) => prev - 1);
-      setIsSubmitted(false);
     }
   };
 
@@ -93,6 +89,12 @@ const Page = () => {
     const newSelectedOptions = [...selectedOptions];
     newSelectedOptions[currentQuestionIndex] = option;
     setSelectedOptions(newSelectedOptions);
+  };
+
+  const handleSubmit = () => {
+    const newIsSubmitted = [...isSubmitted];
+    newIsSubmitted[currentQuestionIndex] = true; // Mark current question as submitted
+    setIsSubmitted(newIsSubmitted);
   };
 
   return (
@@ -108,9 +110,7 @@ const Page = () => {
                   height="500px"
                 />
               </div>
-              <h1 className="text-4xl font-bold mt-5">
-                Title asdfasdfkj a sdfkj asf ansdf ansdf k
-              </h1>
+              <h1 className="text-4xl font-bold mt-5">Title</h1>
               <div className="mt-5 flex">
                 <Input
                   placeholder="Ask Your Question"
@@ -153,10 +153,12 @@ const Page = () => {
                       question={mcqs[currentQuestionIndex].question}
                       options={mcqs[currentQuestionIndex].options}
                       correctAnswer={mcqs[currentQuestionIndex].correctAnswer}
-                      selectedOption={selectedOptions[currentQuestionIndex]} // Pass the selected option for the current question
-                      isSubmitted={isSubmitted}
-                      onOptionChange={handleOptionChange} // Use the new handler
-                      onSubmit={() => setIsSubmitted(true)}
+                      selectedOption={
+                        selectedOptions[currentQuestionIndex] || null
+                      }
+                      isSubmitted={isSubmitted[currentQuestionIndex] || false} // Use the array for submission status
+                      onOptionChange={handleOptionChange}
+                      onSubmit={handleSubmit} // Call handleSubmit on submit
                     />
                   )}
                   <div className="flex justify-between mt-4">
