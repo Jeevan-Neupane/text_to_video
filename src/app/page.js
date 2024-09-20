@@ -1,13 +1,19 @@
 "use client";
 import {IoSparklesSharp} from "react-icons/io5";
-import {useEffect, useState} from "react";
+import {use, useEffect, useState} from "react";
 import Link from "next/link";
 import {v4 as uuidv4} from "uuid";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import MaxWidthWrapper from "@/components/common/max-width-wrapper";
-
+import {useMutation, useQuery} from "@tanstack/react-query";
+import axios from "axios";
+import {useToast} from "@/hooks/use-toast";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/navigation";
+import {formatDate} from "@/lib/utils";
 const categories = ["All", "Trending", "New", "Kids"];
+import {FaPlay} from "react-icons/fa";
 
 const videos = [
   {
@@ -55,19 +61,121 @@ const videos = [
 ];
 
 export default function Home() {
+  const {data: session} = useSession();
+
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [filteredVideos, setFilteredVideos] = useState(videos);
+  const [videos, setVidoes] = useState([]);
+  const [filteredVideos, setFilteredVideos] = useState();
+
+  const {toast} = useToast();
+
+  const router = useRouter();
+
+  const {data, isLoading, isError} = useQuery({
+    queryKey: "videos",
+    queryFn: async () => {
+      const response = await axios.get(
+        "http://localhost:3000/api/video/getAllVideo"
+      );
+      return response.data;
+    },
+    onSuccess: (data) => {
+      console.log("Videos fetched:", data);
+    },
+    onError: (error) => {
+      console.error("Error fetching videos:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch videos. Please try again.",
+      });
+    },
+    select: (data) => data.videos,
+  });
+
+  const addVideoMutation = useMutation({
+    mutationFn: async (video) => {
+      const response = await axios.post(
+        "http://localhost:3000/api/video/addVideo",
+        video
+      );
+      return response.data;
+    },
+    onSuccess: (data) => {
+      // Handle success (e.g., show a message, update state)
+      console.log("Video added:", data);
+      setPrompt("");
+      router.push(`/video/${data.video._id}`);
+    },
+    onError: (error) => {
+      // Handle error
+      console.error("Error adding video:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to add video. Please try again.",
+      });
+    },
+  });
+
+  useEffect(() => {
+    if (data) {
+      console.log("Data:", data);
+      setVidoes(data);
+      setFilteredVideos(data);
+    }
+  }, [data]);
+
+  const generateVideoMutation = useMutation({
+    mutationFn: async (prompt) => {
+      // const response = await axios.post(
+      //   "https://educational-video-generator.onrender.com/generate_video",
+      //   {},
+      //   {
+      //     params: {
+      //       title: prompt,
+      //     },
+      //   }
+      // );
+      // return response.data;
+
+      return {
+        video_url:
+          "https://res.cloudinary.com/chatappjeevanneupane/video/upload/v1726849091/rkxqu7yfcbyoxyqcf9hf.mp4",
+      };
+    },
+    onSuccess: (data) => {
+      // Handle success (e.g., show a message, update state)
+      console.log("Video generated:", data);
+      addVideoMutation.mutate({
+        user: session.user.id,
+        title: prompt,
+        videoUrl: data.video_url,
+        mcqs: [],
+        category: "New",
+      });
+    },
+    onError: (error) => {
+      // Handle error
+      console.error("Error generating video:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to generate video. Please try again.",
+      });
+    },
+  });
 
   const handleClick = () => {
-    if (prompt.length < 10) {
+    if (prompt.length < 5) {
       setError("Input must be at least 10 characters long.");
       return;
     }
     setError(""); // Clear error if input is valid
-    console.log(prompt, selectedCategory);
-    // Proceed with your logic here
+    console.log(prompt);
+    generateVideoMutation.mutate(prompt);
   };
 
   useEffect(() => {
@@ -106,9 +214,37 @@ export default function Home() {
                 {error && <p className="text-red-500 text-sm">{error}</p>}
               </div>
 
-              <Button className="text-lg w-fit" onClick={handleClick}>
-                <IoSparklesSharp />
-                <span className="ml-3">Generate Video</span>
+              <Button
+                className="text-lg w-fit"
+                onClick={handleClick}
+                disabled={generateVideoMutation.isPending}
+              >
+                {generateVideoMutation.isPending ? (
+                  <svg
+                    aria-hidden="true"
+                    class="w-6 h-6 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+                    viewBox="0 0 100 101"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                      fill="currentFill"
+                    />
+                  </svg>
+                ) : (
+                  <IoSparklesSharp />
+                )}
+
+                <span className="ml-3">
+                  {generateVideoMutation.isPending
+                    ? "Generating Video..."
+                    : "Generate Video"}
+                </span>
               </Button>
             </div>
           </div>
@@ -130,14 +266,26 @@ export default function Home() {
               ))}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-10 mt-3 text-lg">
-              {filteredVideos.map((video) => (
-                <Link key={video.id} href={`/video/${video.id}`}>
-                  <div className="h-[200px] bg-gray-200 rounded-md"></div>
-                  <p className="text-lg mt-2">{video.title}</p>
+              {filteredVideos?.map((video) => (
+                <Link key={video.id} href={`/video/${video._id}`}>
+                  <div className="relative w-full h-[300px] rounded-md overflow-hidden group">
+                    <img
+                      src="https://images.unsplash.com/photo-1515310787031-25ac2d68610d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                      alt={video.title}
+                      width="500"
+                      height="300"
+                      className="w-full h-[300px] rounded-md object-cover group-hover:scale-110 transition-all duration-300 ease-in-out"
+                    />
+                    <span className="hidden group-hover:block">
+                      <FaPlay className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-5xl text-white" />
+                    </span>
+                  </div>
+
+                  <p className="text-lg mt-2 uppercase">{video.title}</p>
                   <p className="w-full flex text-base text-muted-foreground">
-                    <span className="">By {video.author}</span>
+                    <span className="">By {video.user.name}</span>
                     <span className="mx-2">•</span>
-                    <span className="">{video.createdAt}</span>
+                    <span className="">{formatDate(video.createdAt)}</span>
                   </p>
                 </Link>
               ))}
