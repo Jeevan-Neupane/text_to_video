@@ -1,13 +1,14 @@
 import {connect} from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
 import bcryptjs from "bcryptjs";
+import {NextResponse} from "next/server";
 
 connect();
 
 export async function POST(request) {
   try {
     const data = await request.json();
-    const {name, email, password} = data;
+    const {name, email, password, role} = data;
     console.log(data);
 
     const user = await User.findOne({email});
@@ -23,13 +24,17 @@ export async function POST(request) {
       name,
       email,
       password: hashedPassword,
+      role: role ? role : "student",
     });
 
-    const savedUser = await newUser.save().catch((error) => {
-      console.log(error);
-    });
-    console.log("success");
-    console.log(savedUser);
+    let savedUser = await newUser.save();
+    if (!savedUser) {
+      throw new Error("User could not be saved");
+    }
+
+    savedUser = savedUser.toObject();
+    delete savedUser.password;
+
     return NextResponse.json({
       message: "User Created Successfully",
       success: true,

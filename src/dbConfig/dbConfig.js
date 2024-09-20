@@ -2,7 +2,10 @@ import mongoose from "mongoose";
 
 export async function connect() {
   try {
-    console.log(process.env.MONGO_URL);
+    const MONGO_URL = process.env.MONGO_URL;
+    if (!MONGO_URL) {
+      throw new Error("Mongo URL not found");
+    }
     mongoose.connect(process.env.MONGO_URL);
     const connection = mongoose.connection;
 
@@ -12,7 +15,6 @@ export async function connect() {
 
     connection.on("error", () => {
       console.log("MongoDb connection error");
-      process.exit();
     });
   } catch (error) {
     console.log("something went wrong");

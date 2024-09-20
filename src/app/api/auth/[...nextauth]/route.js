@@ -1,4 +1,4 @@
-import nextAuth, {NextAuthOptions} from "next-auth";
+import nextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import User from "@/models/userModel";
@@ -14,7 +14,6 @@ export const authOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        name: {label: "Name", type: "text", placeholder: "name"},
         email: {label: "Email", type: "text", placeholder: "email"},
         password: {label: "Password", type: "password"},
       },
@@ -53,9 +52,9 @@ export const authOptions = {
   session: {
     strategy: "jwt",
   },
-  // pages: {
-  //   signIn: "/login",
-  // },
+  pages: {
+    signIn: "/login",
+  },
   debug: process.env.NODE_ENV === "development",
 };
 
