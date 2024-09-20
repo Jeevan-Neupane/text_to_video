@@ -1,6 +1,6 @@
 "use client"
 import MCQQuestion from '@/components/ui/mcq';
-import MaxWidthWrapper from '../components/common/max-width-wrapper'
+import MaxWidthWrapper from '@/components/common/max-width-wrapper'; 
 import ReactPlayer from 'react-player'
 import { useEffect, useState } from 'react';
 
@@ -54,15 +54,7 @@ const page = () => {
     ];
     return (
         <div className="text-black bg-white">
-            <div className="h-[52px] bg-white border-b border-b-gray-200 shadow-md flex items-center">
-                <MaxWidthWrapper>
-                    <div>
-                        Navbar
-                    </div>
-                </MaxWidthWrapper>
-
-            </div>
-
+            
             <div className="mb-8">
                 <MaxWidthWrapper>
                     <div className="pt-4 w-full flex justify-center items-center flex-col text-center">
