@@ -16,98 +16,58 @@ function Navbar() {
   const userScore = 120; // Example score, replace with actual logic
 
   return (
-    <nav className='sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border shadow-sm'>
+    <nav className="sticky top-0 z-50 w-full bg-white bg-background/90 backdrop-blur-xl supports-[backdrop-filter]:bg-background/90 border-b border-border shadow-sm">
       <MaxWidthWrapper>
-        <div className='flex h-16 items-center justify-between'>
-          <div className='flex items-center'>
-            <Link
-              href='/'
-              className='flex items-center space-x-2'
-            >
-              <span className='text-2xl font-bold text-primary'>LearnAI</span>
+        <div className="flex h-16 items-center justify-between">
+          <div className="flex items-center">
+            <Link href="/" className="flex items-center space-x-2">
+              <span className="text-2xl font-bold text-primary">LearnAI</span>
             </Link>
-            <div className='hidden md:flex md:items-center md:space-x-4 ml-8'>
+            <div className="hidden md:flex md:items-center md:space-x-4 ml-8">
               <Link
-                href='/video'
-                className='text-sm font-medium text-muted-foreground hover:text-primary'
+                href="/"
+                className="text-base font-medium text-muted-foreground hover:text-primary"
               >
-                Videos
+                Home
               </Link>
               <Link
-                href='/topics'
-                className='text-sm font-medium text-muted-foreground hover:text-primary'
+                href="/reels"
+                className="text-base font-medium text-muted-foreground hover:text-primary flex items-center"
               >
-                Topics
-              </Link>
-              <Link
-                href='/about'
-                className='text-sm font-medium text-muted-foreground hover:text-primary'
-              >
-                About
+                Watch Reels
               </Link>
             </div>
           </div>
-          <div className='flex items-center space-x-4'>
-            <form className='hidden md:block'>
-              <div className='relative'>
-                <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
-                <Input
-                  type='search'
-                  placeholder='Search...'
-                  className='w-[200px] pl-8 md:w-[300px]'
-                />
-              </div>
-            </form>
-            <Button
-              variant='ghost'
-              size='icon'
-              className='md:hidden'
-            >
-              <Search className='h-5 w-5' />
-              <span className='sr-only'>Search</span>
-            </Button>
-            <Button
-              variant='ghost'
-              size='icon'
-              className='md:hidden'
-            >
-              <Menu className='h-5 w-5' />
-              <span className='sr-only'>Menu</span>
+          <div className="flex items-center space-x-4">
+            <Button variant="ghost" size="icon" className="md:hidden">
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Menu</span>
             </Button>
 
             {session ? (
-              <div className='flex items-center space-x-2 gap-2'>
-                <div className='flex items-center gap-2'>
-                  <RxAvatar className='w-6 h-6 text-muted-foreground' />
-                  <span className='text-sm font-semibold'>
+              <div className="flex items-center space-x-2 gap-2">
+                <div className="flex items-center gap-2">
+                  <RxAvatar className="w-6 h-6 text-muted-foreground" />
+                  <span className="text-sm font-semibold">
                     {session.user.name}
                   </span>
                 </div>
-                <div className='flex items-center ml-6 gap-2'>
-                  <FaGift className='w-6 h-6 text-muted-foreground' />
-                  <span className='text-sm font-semibold '>
+                <div className="flex items-center ml-6 gap-2">
+                  <FaGift className="w-6 h-6 text-muted-foreground" />
+                  <span className="text-sm font-semibold ">
                     Rewards: {session.user.rewards}
                   </span>
                 </div>
               </div>
             ) : (
-              <div className='space-x-4'>
-                <Link
-                  href='/login'
-                  className=''
-                >
-                  <Button
-                    variant='outline'
-                    className='hidden md:inline-flex'
-                  >
+              <div className="space-x-4">
+                <Link href="/login" className="">
+                  <Button variant="outline" className="hidden md:inline-flex">
                     Login
                   </Button>
                 </Link>
-                <Link
-                  href='/signup'
-                  className=''
-                >
-                  <Button className='hidden md:inline-flex'>Sign Up</Button>
+                <Link href="/signup" className="">
+                  <Button className="hidden md:inline-flex">Sign Up</Button>
                 </Link>
               </div>
             )}

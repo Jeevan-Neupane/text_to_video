@@ -212,7 +212,10 @@ export default function Home() {
                 </p>
               ))}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-10 mt-3 text-lg">
+            <div
+              id="videos"
+              className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-10 mt-3 text-lg"
+            >
               {isLoading && <div>Loading...</div>}
               {isError && <div>Error fetching videos</div>}
               {filteredVideos.length > 0 &&

@@ -171,6 +171,7 @@ const Page = () => {
                 <Query_Chat />
                 <Description />
               </div>
+
               <div className="w-[30%] pt-6 border-l border-l-gray-200">
                 <h1 className="text-3xl font-bold text-center mb-2">
                   MCQ Quizzes
