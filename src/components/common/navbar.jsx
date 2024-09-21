@@ -1,19 +1,51 @@
-"use client";
-
 import React from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search, Menu } from "lucide-react";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
+import {Search, Menu} from "lucide-react";
 import MaxWidthWrapper from "./max-width-wrapper";
-import { useSession } from "next-auth/react";
-import { RxAvatar } from "react-icons/rx"; // Importing the avatar icon
-import { FaGift } from "react-icons/fa";
-function Navbar() {
-  const { data: session, status } = useSession();
+// import {useSession} from "next-auth/react";
+import {RxAvatar} from "react-icons/rx"; // Importing the avatar icon
+import {FaGift} from "react-icons/fa";
 
+// import axios from "axios";
+import {getServerSession} from "next-auth/next";
+import {authOptions} from "@/app/api/auth/[...nextauth]/route";
+
+async function Navbar() {
+  const session = await getServerSession(authOptions);
   console.log("session", session);
+
+  // const {toast} = useToast();
   const userScore = 120; // Example score, replace with actual logic
+
+  // const {
+  //   data: user,
+  //   isLoading,
+  //   isError,
+  // } = useQuery({
+  //   queryKey: "user",
+  //   queryFn: async () => {
+  //     console.log("hellooooooo");
+  //     const response = await axios.get("http://localhost:3000/api/user");
+
+  //     console.log("response", response);
+  //     return response.data;
+  //   },
+  //   onSuccess: (data) => {
+  //     console.log("User fetched:", data);
+  //   },
+  //   onError: (error) => {
+  //     console.error("Error fetching user:", error);
+  //     toast({
+  //       variant: "destructive",
+  //       title: "Error",
+  //       description: "Failed to fetch videos. Please try again.",
+  //     });
+  //   },
+  //   select: (data) => data.user,
+  // });
+  // console.log("user", user);
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-white bg-background/90 backdrop-blur-xl supports-[backdrop-filter]:bg-background/90 border-b border-border shadow-sm">

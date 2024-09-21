@@ -17,7 +17,7 @@ import {RxAvatar} from "react-icons/rx";
 
 export default function ReelsPage() {
   const [currentReelIndex, setCurrentReelIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true); // New state for play/pause
+  const [isPlaying, setIsPlaying] = useState(true);
   const videoRefs = useRef([]);
 
   const {
@@ -32,27 +32,23 @@ export default function ReelsPage() {
       );
       return response.data;
     },
-    onSuccess: (data) => {
-      console.log("Videos fetched:", data);
-    },
-    onError: (error) => {
-      console.error("Error fetching videos:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to fetch videos. Please try again.",
-      });
-    },
     select: (data) => data.videos,
   });
 
   useEffect(() => {
-    const currentVideo = videoRefs.current[currentReelIndex];
-    if (currentVideo && isPlaying) {
-      currentVideo.play();
-    } else if (currentVideo) {
-      currentVideo.pause();
-    }
+    videoRefs.current.forEach((video, index) => {
+      if (video) {
+        if (index === currentReelIndex) {
+          if (isPlaying) {
+            video.play();
+          } else {
+            video.pause();
+          }
+        } else {
+          video.pause();
+        }
+      }
+    });
   }, [currentReelIndex, isPlaying]);
 
   const handleScroll = (direction) => {
@@ -71,7 +67,7 @@ export default function ReelsPage() {
   };
 
   return (
-    <div className="bg-gray-100 ">
+    <div className="bg-gray-100">
       <div className="w-full max-w-[1260px] mx-auto h-[calc(100vh-65px)] md:p-8 relative">
         <div className="relative w-full h-full md:max-w-md md:h-full mx-auto bg-black text-white overflow-hidden md:rounded-lg md:shadow-lg">
           {reelsVideos &&
@@ -91,12 +87,9 @@ export default function ReelsPage() {
                     ref={(el) => (videoRefs.current[index] = el)}
                     src={reel.videoUrl}
                     className="w-full h-full object-contain"
-                    autoPlay
                     loop
-                    muted
                     playsInline
                   />
-                  {/* Play/Pause button on hover */}
                   <div
                     onClick={togglePlayPause}
                     className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
@@ -112,7 +105,9 @@ export default function ReelsPage() {
                 <div className="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black to-transparent">
                   <div className="flex items-center mb-2">
                     <RxAvatar size={30} />
-                    <span className="font-semibold ml-2">{reel.user.name}</span>
+                    <span className="font-semibold ml-2">
+                      {reel?.user?.name}
+                    </span>
                   </div>
                   <p>{reel.title}</p>
                 </div>
@@ -120,11 +115,11 @@ export default function ReelsPage() {
                 <div className="absolute right-4 bottom-20 flex flex-col items-center space-y-4">
                   <Button variant="ghost" size="icon">
                     <Heart className="h-6 w-6" />
-                    <span className="text-xs">{reel.likes}</span>
+                    {/* <span className="text-xs">{reel.likes || 0}</span> */}
                   </Button>
                   <Button variant="ghost" size="icon">
                     <MessageCircle className="h-6 w-6" />
-                    <span className="text-xs">{reel.comments}</span>
+                    {/* <span className="text-xs">{reel.comments || 0}</span> */}
                   </Button>
                   <Button variant="ghost" size="icon">
                     <Share2 className="h-6 w-6" />
