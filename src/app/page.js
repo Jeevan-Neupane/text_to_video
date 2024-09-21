@@ -2,20 +2,19 @@
 import { IoSparklesSharp } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { v4 as uuidv4 } from "uuid";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
+import {Button} from "@/components/ui/button";
 import MaxWidthWrapper from "@/components/common/max-width-wrapper";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import {useMutation, useQuery} from "@tanstack/react-query";
 import axios from "axios";
-import { useToast } from "@/hooks/use-toast";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { formatDate } from "@/lib/utils";
-import { FaPlay } from "react-icons/fa";
+import {useToast} from "@/hooks/use-toast";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/navigation";
+import {formatDate} from "@/lib/utils";
+import {FaPlay} from "react-icons/fa";
 
 export default function Home() {
-  const { data: session } = useSession();
+  const {data: session} = useSession();
   console.log("Session:", session);
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState("");
@@ -24,10 +23,10 @@ export default function Home() {
   const [filteredVideos, setFilteredVideos] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  const { toast } = useToast();
+  const {toast} = useToast();
   const router = useRouter();
 
-  const { data, isLoading, isError } = useQuery({
+  const {data, isLoading, isError} = useQuery({
     queryKey: "videos",
     queryFn: async () => {
       const response = await axios.get(
@@ -75,14 +74,14 @@ export default function Home() {
   });
 
   const generateVideoMutation = useMutation({
-    mutationFn: async ({ prompt: topic, grade }) => {
+    mutationFn: async ({prompt: topic, grade}) => {
       console.log("Generating video for topic:", topic, grade);
       const response = await axios.post(
         "http://localhost:8000/generate_educational_content/",
         {
           topic: topic,
           grade: grade,
-        },
+        }
       );
       return response.data;
     },
@@ -130,7 +129,6 @@ export default function Home() {
   }, [selectedCategory, videos]);
 
   const handleClick = () => {
-
     if (!session) {
       router.push("/auth/signin");
       return;
@@ -142,7 +140,7 @@ export default function Home() {
     setError("");
     // Clear error if input is valid
     let grade = 1;
-    generateVideoMutation.mutate({ prompt, grade });
+    generateVideoMutation.mutate({prompt, grade});
   };
 
   return (
@@ -173,7 +171,7 @@ export default function Home() {
                 {error && <p className="text-red-500 text-sm">{error}</p>}
               </div>
               <Button
-                className="text-lg w-fit"
+                className="text-xl w-fit py-5 px-8"
                 onClick={handleClick}
                 disabled={generateVideoMutation.isPending}
               >
@@ -213,8 +211,9 @@ export default function Home() {
               {categories?.map((category) => (
                 <p
                   key={category}
-                  className={`border px-4 py-2 shadow-md rounded-full text-lg cursor-pointer ${selectedCategory === category ? "bg-black text-white" : ""
-                    }`}
+                  className={`border px-4 py-2 shadow-md rounded-full text-lg cursor-pointer ${
+                    selectedCategory === category ? "bg-black text-white" : ""
+                  }`}
                   onClick={() => setSelectedCategory(category)}
                 >
                   {category}
@@ -232,7 +231,10 @@ export default function Home() {
                   <Link key={video.id} href={`/video/${video._id}`}>
                     <div className="relative w-full h-[300px] rounded-md overflow-hidden group">
                       <img
-                        src={video.thumbnail || "https://images.unsplash.com/photo-1515310787031-25ac2d68610d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}
+                        src={
+                          video.thumbnail ||
+                          "https://images.unsplash.com/photo-1515310787031-25ac2d68610d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        }
                         alt={video.title}
                         className="w-full h-[300px] rounded-md object-cover group-hover:scale-110 transition-all duration-300 ease-in-out"
                       />
