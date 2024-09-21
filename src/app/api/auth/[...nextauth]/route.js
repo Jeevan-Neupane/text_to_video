@@ -38,7 +38,12 @@ export const authOptions = {
   callbacks: {
     async jwt({token, user, session}) {
       if (user) {
-        return {...token, id: user._id, role: user.role,rewards: user.rewards};
+        return {
+          ...token,
+          id: user._id,
+          role: user.role,
+          rewards: user.rewards,
+        };
       }
       return token;
     },
