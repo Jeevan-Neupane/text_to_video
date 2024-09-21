@@ -7,12 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Search, Menu } from "lucide-react";
 import MaxWidthWrapper from "./max-width-wrapper";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
-
+import { RxAvatar } from "react-icons/rx"; // Importing the avatar icon
+import { FaGift } from "react-icons/fa";
 function Navbar() {
   const { data: session, status } = useSession();
-  console.log(session, status);
-  
+
+  console.log("session", session);
+  const userScore = 120; // Example score, replace with actual logic
 
   return (
     <nav className='sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border shadow-sm'>
@@ -75,21 +76,18 @@ function Navbar() {
             </Button>
 
             {session ? (
-              <div className='flex items-center space-x-4'>
-                {/* Avatar and Score Display */}
-                <div className='flex items-center space-x-2'>
-                  {/* Avatar */}
-                  <Image
-                    src={session.user.image || "/default-avatar.png"}
-                    alt='User Avatar'
-                    width={40}
-                    height={40}
-                    className='rounded-full'
-                  />
-                  {/* Score */}
-                  <div className='text-sm font-medium text-muted-foreground'>
-                    Score: {session.user.score || 0}
-                  </div>
+              <div className='flex items-center space-x-2 gap-2'>
+                <div className='flex items-center gap-2'>
+                  <RxAvatar className='w-6 h-6 text-muted-foreground' />
+                  <span className='text-sm font-semibold'>
+                    {session.user.name}
+                  </span>
+                </div>
+                <div className='flex items-center ml-6 gap-2'>
+                  <FaGift className='w-6 h-6 text-muted-foreground' />
+                  <span className='text-sm font-semibold '>
+                    Rewards: {session.user.rewards}
+                  </span>
                 </div>
               </div>
             ) : (

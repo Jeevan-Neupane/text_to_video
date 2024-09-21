@@ -2,15 +2,17 @@
 import MCQQuestion from "@/components/ui/mcq";
 import MaxWidthWrapper from "@/components/common/max-width-wrapper";
 import ReactPlayer from "react-player";
-import {use, useEffect, useState} from "react";
-import {Input} from "@/components/ui/input";
-import {Button} from "@/components/ui/button";
-import {IoSparklesSharp} from "react-icons/io5";
+import { use, useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { IoSparklesSharp } from "react-icons/io5";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import {useParams} from "next/navigation";
-import {useQuery} from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import Query_Chat from "@/components/chat/query_chat";
+import Description from "@/components/ui/description";
 
 const mcqs = [
   {
@@ -56,8 +58,8 @@ const mcqs = [
 ];
 
 const Page = () => {
-  const {id} = useParams();
-  const [question, setQuestion] = useState("");
+  const { id } = useParams();
+
   const [isLoading, setIsLoading] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState([]);
@@ -102,10 +104,7 @@ const Page = () => {
 
   console.log("video", video);
 
-  const handleClick = () => {
-    console.log(question);
-    setIsLoading(true);
-  };
+
 
   const handleNext = () => {
     if (currentQuestionIndex < mcqs.length - 1) {
@@ -169,35 +168,8 @@ const Page = () => {
                 <h1 className="text-4xl font-bold mt-5 uppercase">
                   {video.title}
                 </h1>
-                <div className="mt-5 flex">
-                  <Input
-                    placeholder="Ask Your Question"
-                    value={question}
-                    onChange={(e) => setQuestion(e.target.value)}
-                    className="h-12 rounded-none"
-                  />
-                  <Button
-                    className="text-lg w-fit h-auto rounded-none"
-                    onClick={handleClick}
-                  >
-                    <IoSparklesSharp />
-                    <span className="ml-3">Ask Question</span>
-                  </Button>
-                </div>
-                {isLoading && (
-                  <div className="mt-5">
-                    <Skeleton width="90%" height="20px" />
-                    <Skeleton width="20%" height="20px" />
-                  </div>
-                )}
-                <div
-                  className={`mt-5 ${
-                    isLoading && "border-t border-t-gray-200 pt-2"
-                  }`}
-                >
-                  <h2 className="text-3xl">Description</h2>
-                  <p className="text-justify">{/* Description content */}</p>
-                </div>
+                <Query_Chat />
+                <Description />
               </div>
               <div className="w-[30%] pt-6 border-l border-l-gray-200">
                 <h1 className="text-3xl font-bold text-center mb-2">
