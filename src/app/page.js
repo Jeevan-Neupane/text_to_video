@@ -16,6 +16,7 @@ import { FaPlay } from "react-icons/fa";
 
 export default function Home() {
   const { data: session } = useSession();
+  console.log("Session:", session);
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -51,6 +52,7 @@ export default function Home() {
 
   const addVideoMutation = useMutation({
     mutationFn: async (video) => {
+      console.log("Adding video:", video);
       const response = await axios.post(
         "http://localhost:3000/api/video/addVideo",
         video
@@ -73,8 +75,8 @@ export default function Home() {
   });
 
   const generateVideoMutation = useMutation({
-    mutationFn: async ({ prompt:topic, grade }) => {
-      console.log("Generating video for topic:", topic,grade);
+    mutationFn: async ({ prompt: topic, grade }) => {
+      console.log("Generating video for topic:", topic, grade);
       const response = await axios.post(
         "http://localhost:8000/generate_educational_content/",
         {
@@ -87,11 +89,13 @@ export default function Home() {
     onSuccess: (data) => {
       console.log("Video generated:", data);
       addVideoMutation.mutate({
-        user: session.user.id,
-        title: prompt,
-        videoUrl: data.video_url,
-        mcqs: [],
+        user: session?.user.id,
+        title: data?.video_title,
+        videoUrl: data.video_link,
+        mcqs: data.mcqs,
         category: "Math",
+        thumbnail: data.thumbnail,
+        caption: data?.caption,
       });
     },
     onError: (error) => {
@@ -126,6 +130,11 @@ export default function Home() {
   }, [selectedCategory, videos]);
 
   const handleClick = () => {
+
+    if (!session) {
+      router.push("/auth/signin");
+      return;
+    }
     if (prompt.length < 5) {
       setError("Input must be at least 5 characters long.");
       return;
@@ -133,7 +142,7 @@ export default function Home() {
     setError("");
     // Clear error if input is valid
     let grade = 1;
-    generateVideoMutation.mutate({prompt, grade});
+    generateVideoMutation.mutate({ prompt, grade });
   };
 
   return (
@@ -223,7 +232,7 @@ export default function Home() {
                   <Link key={video.id} href={`/video/${video._id}`}>
                     <div className="relative w-full h-[300px] rounded-md overflow-hidden group">
                       <img
-                        src="https://images.unsplash.com/photo-1515310787031-25ac2d68610d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        src={video.thumbnail || "https://images.unsplash.com/photo-1515310787031-25ac2d68610d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}
                         alt={video.title}
                         className="w-full h-[300px] rounded-md object-cover group-hover:scale-110 transition-all duration-300 ease-in-out"
                       />
@@ -233,7 +242,7 @@ export default function Home() {
                     </div>
                     <p className="text-lg mt-2 uppercase">{video.title}</p>
                     <p className="w-full flex text-base text-muted-foreground">
-                      <span>By {video.user.name}</span>
+                      <span>By {video?.user?.name}</span>
                       <span className="mx-2">•</span>
                       <span>{formatDate(video.createdAt)}</span>
                     </p>
