@@ -1,6 +1,8 @@
+import {connect} from "@/dbConfig/dbConfig";
 import Video from "@/models/videoModel";
 import {NextResponse} from "next/server";
 
+connect();
 export async function GET(request) {
   try {
     console.log("GET /api/video/getAllVideo");

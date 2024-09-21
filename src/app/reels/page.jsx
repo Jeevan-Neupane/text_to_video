@@ -7,43 +7,17 @@ import {
   Heart,
   MessageCircle,
   Share2,
+  Play,
+  Pause,
 } from "lucide-react";
 import {Button} from "@/components/ui/button";
 import {useQuery} from "@tanstack/react-query";
 import axios from "axios";
-
-// const mockReels = [
-//   {
-//     id: "1",
-//     videoUrl:
-//       "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-//     user: {name: "User1", avatar: "/placeholder.svg?height=50&width=50"},
-//     caption: "This is reel 1",
-//     likes: 1000,
-//     comments: 100,
-//   },
-//   {
-//     id: "2",
-//     videoUrl:
-//       "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-//     user: {name: "User2", avatar: "/placeholder.svg?height=50&width=50"},
-//     caption: "This is reel 2",
-//     likes: 2000,
-//     comments: 200,
-//   },
-//   {
-//     id: "3",
-//     videoUrl:
-//       "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-//     user: {name: "User3", avatar: "/placeholder.svg?height=50&width=50"},
-//     caption: "This is reel 3",
-//     likes: 3000,
-//     comments: 300,
-//   },
-// ];
+import {RxAvatar} from "react-icons/rx";
 
 export default function ReelsPage() {
   const [currentReelIndex, setCurrentReelIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true); // New state for play/pause
   const videoRefs = useRef([]);
 
   const {
@@ -56,7 +30,6 @@ export default function ReelsPage() {
       const response = await axios.get(
         "http://localhost:3000/api/video/getAllVideo"
       );
-
       return response.data;
     },
     onSuccess: (data) => {
@@ -73,19 +46,14 @@ export default function ReelsPage() {
     select: (data) => data.videos,
   });
 
-  console.log("reelsVideos", reelsVideos);
-
   useEffect(() => {
     const currentVideo = videoRefs.current[currentReelIndex];
-    if (currentVideo) {
+    if (currentVideo && isPlaying) {
       currentVideo.play();
+    } else if (currentVideo) {
+      currentVideo.pause();
     }
-    return () => {
-      if (currentVideo) {
-        currentVideo.pause();
-      }
-    };
-  }, [currentReelIndex]);
+  }, [currentReelIndex, isPlaying]);
 
   const handleScroll = (direction) => {
     setCurrentReelIndex((prevIndex) => {
@@ -95,6 +63,11 @@ export default function ReelsPage() {
           : Math.max(prevIndex - 1, 0);
       return newIndex;
     });
+    setIsPlaying(true);
+  };
+
+  const togglePlayPause = () => {
+    setIsPlaying((prev) => !prev);
   };
 
   return (
@@ -113,26 +86,37 @@ export default function ReelsPage() {
                     : "translate-y-full"
                 }`}
               >
-                <video
-                  ref={(el) => (videoRefs.current[index] = el)}
-                  src={reel.videoUrl}
-                  className="w-full h-full object-contain"
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                />
+                <div className="relative group w-full h-full">
+                  <video
+                    ref={(el) => (videoRefs.current[index] = el)}
+                    src={reel.videoUrl}
+                    className="w-full h-full object-contain"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                  />
+                  {/* Play/Pause button on hover */}
+                  <div
+                    onClick={togglePlayPause}
+                    className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  >
+                    {isPlaying ? (
+                      <Pause className="h-8 w-8 text-white" />
+                    ) : (
+                      <Play className="h-8 w-8 text-white" />
+                    )}
+                  </div>
+                </div>
+
                 <div className="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black to-transparent">
                   <div className="flex items-center mb-2">
-                    <img
-                      src={reel.user.avatar}
-                      alt={reel.user.name}
-                      className="w-10 h-10 rounded-full mr-2"
-                    />
-                    <span className="font-semibold">{reel.user.name}</span>
+                    <RxAvatar size={30} />
+                    <span className="font-semibold ml-2">{reel.user.name}</span>
                   </div>
-                  <p>{reel.caption}</p>
+                  <p>{reel.title}</p>
                 </div>
+
                 <div className="absolute right-4 bottom-20 flex flex-col items-center space-y-4">
                   <Button variant="ghost" size="icon">
                     <Heart className="h-6 w-6" />
