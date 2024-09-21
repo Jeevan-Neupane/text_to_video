@@ -9,41 +9,71 @@ import {
   Share2,
 } from "lucide-react";
 import {Button} from "@/components/ui/button";
-import MaxWidthWrapper from "@/components/common/max-width-wrapper";
+import {useQuery} from "@tanstack/react-query";
+import axios from "axios";
 
-const mockReels = [
-  {
-    id: "1",
-    videoUrl:
-      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-    user: {name: "User1", avatar: "/placeholder.svg?height=50&width=50"},
-    caption: "This is reel 1",
-    likes: 1000,
-    comments: 100,
-  },
-  {
-    id: "2",
-    videoUrl:
-      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-    user: {name: "User2", avatar: "/placeholder.svg?height=50&width=50"},
-    caption: "This is reel 2",
-    likes: 2000,
-    comments: 200,
-  },
-  {
-    id: "3",
-    videoUrl:
-      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-    user: {name: "User3", avatar: "/placeholder.svg?height=50&width=50"},
-    caption: "This is reel 3",
-    likes: 3000,
-    comments: 300,
-  },
-];
+// const mockReels = [
+//   {
+//     id: "1",
+//     videoUrl:
+//       "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+//     user: {name: "User1", avatar: "/placeholder.svg?height=50&width=50"},
+//     caption: "This is reel 1",
+//     likes: 1000,
+//     comments: 100,
+//   },
+//   {
+//     id: "2",
+//     videoUrl:
+//       "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+//     user: {name: "User2", avatar: "/placeholder.svg?height=50&width=50"},
+//     caption: "This is reel 2",
+//     likes: 2000,
+//     comments: 200,
+//   },
+//   {
+//     id: "3",
+//     videoUrl:
+//       "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+//     user: {name: "User3", avatar: "/placeholder.svg?height=50&width=50"},
+//     caption: "This is reel 3",
+//     likes: 3000,
+//     comments: 300,
+//   },
+// ];
 
 export default function ReelsPage() {
   const [currentReelIndex, setCurrentReelIndex] = useState(0);
   const videoRefs = useRef([]);
+
+  const {
+    data: reelsVideos,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: "videos",
+    queryFn: async () => {
+      const response = await axios.get(
+        "http://localhost:3000/api/video/getAllVideo"
+      );
+
+      return response.data;
+    },
+    onSuccess: (data) => {
+      console.log("Videos fetched:", data);
+    },
+    onError: (error) => {
+      console.error("Error fetching videos:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch videos. Please try again.",
+      });
+    },
+    select: (data) => data.videos,
+  });
+
+  console.log("reelsVideos", reelsVideos);
 
   useEffect(() => {
     const currentVideo = videoRefs.current[currentReelIndex];
@@ -61,18 +91,18 @@ export default function ReelsPage() {
     setCurrentReelIndex((prevIndex) => {
       const newIndex =
         direction === "down"
-          ? Math.min(prevIndex + 1, mockReels.length - 1)
+          ? Math.min(prevIndex + 1, reelsVideos?.length - 1)
           : Math.max(prevIndex - 1, 0);
       return newIndex;
     });
   };
 
   return (
-    <div className="bg-gray-100">
-      <MaxWidthWrapper>
-        <div className="min-h-[calc(100vh-62px)] md:p-8 relative">
-          <div className="relative w-full h-screen md:max-w-md md:h-[calc(100vh-200px)] mx-auto bg-black text-white overflow-hidden md:rounded-lg md:shadow-lg">
-            {mockReels.map((reel, index) => (
+    <div className="bg-gray-100 ">
+      <div className="w-full max-w-[1260px] mx-auto h-[calc(100vh-65px)] md:p-8 relative">
+        <div className="relative w-full h-full md:max-w-md md:h-full mx-auto bg-black text-white overflow-hidden md:rounded-lg md:shadow-lg">
+          {reelsVideos &&
+            reelsVideos.map((reel, index) => (
               <div
                 key={reel.id}
                 className={`absolute top-0 left-0 w-full h-full transition-transform duration-300 ease-in-out ${
@@ -87,6 +117,7 @@ export default function ReelsPage() {
                   ref={(el) => (videoRefs.current[index] = el)}
                   src={reel.videoUrl}
                   className="w-full h-full object-contain"
+                  autoPlay
                   loop
                   muted
                   playsInline
@@ -117,29 +148,29 @@ export default function ReelsPage() {
                 </div>
               </div>
             ))}
-          </div>
-          <div className="fixed right-4 top-1/2 transform -translate-y-1/2 flex flex-col space-y-4 z-50">
-            <Button
-              variant="secondary"
-              size="icon"
-              className="rounded-full shadow-lg"
-              onClick={() => handleScroll("up")}
-              disabled={currentReelIndex === 0}
-            >
-              <ChevronUp className="h-6 w-6" />
-            </Button>
-            <Button
-              variant="secondary"
-              size="icon"
-              className="rounded-full shadow-lg"
-              onClick={() => handleScroll("down")}
-              disabled={currentReelIndex === mockReels.length - 1}
-            >
-              <ChevronDown className="h-6 w-6" />
-            </Button>
-          </div>
         </div>
-      </MaxWidthWrapper>
+
+        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex flex-col space-y-4 z-50">
+          <Button
+            variant="secondary"
+            size="icon"
+            className="border rounded-full shadow-lg"
+            onClick={() => handleScroll("up")}
+            disabled={currentReelIndex === 0}
+          >
+            <ChevronUp className="h-6 w-6" />
+          </Button>
+          <Button
+            variant="secondary"
+            size="icon"
+            className="border rounded-full shadow-lg"
+            onClick={() => handleScroll("down")}
+            disabled={currentReelIndex === reelsVideos?.length - 1}
+          >
+            <ChevronDown className="h-6 w-6" />
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

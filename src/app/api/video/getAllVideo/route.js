@@ -4,7 +4,7 @@ import {NextResponse} from "next/server";
 export async function GET(request) {
   try {
     console.log("GET /api/video/getAllVideo");
-    const videos = await Video.find().populate("user", "name"); // Fetch all videos from the database
+    const videos = await Video.find({}).populate("user", "name"); // Fetch all videos from the database
 
     console.log(videos);
     // Return the videos in the response
