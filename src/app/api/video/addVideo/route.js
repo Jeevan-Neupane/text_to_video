@@ -7,13 +7,15 @@ connect(); // Connect to the database
 export async function POST(request) {
   try {
     const data = await request.json();
-    const {user, title, videoUrl, mcqs, category} = data;
+    const {user, title, thumbnail, videoUrl, caption, mcqs, category} = data;
 
     // Create a new video document
     const newVideo = new Video({
       user,
       title,
+      thumbnail,
       videoUrl,
+      caption,
       mcqs: mcqs || [], // Default to empty array if mcqs is not provided
       category: category || "New", // Default category if not provided
     });

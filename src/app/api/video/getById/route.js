@@ -1,6 +1,8 @@
+import {connect} from "@/dbConfig/dbConfig";
 import Video from "@/models/videoModel";
 import {NextResponse} from "next/server";
 
+connect();
 export async function GET(request) {
   try {
     const {searchParams} = new URL(request.url);

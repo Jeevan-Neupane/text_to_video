@@ -9,9 +9,15 @@ const videoSchema = new mongoose.Schema(
     title: {
       type: String,
     },
+    thumbnail: {
+      type: String,
+    },
     videoUrl: {
       type: String,
       required: true,
+    },
+    caption: {
+      type: String,
     },
     mcqs: {
       type: Array,
