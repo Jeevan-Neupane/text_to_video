@@ -32,6 +32,7 @@ export default function Home() {
       const response = await axios.get(
         "http://localhost:3000/api/video/getAllVideo"
       );
+
       return response.data;
     },
     onSuccess: (data) => {
