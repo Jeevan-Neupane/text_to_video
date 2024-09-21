@@ -22,11 +22,12 @@ export default function Home() {
   const [videos, setVideos] = useState([]);
   const [filteredVideos, setFilteredVideos] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [generateMathVideo, setGenerateMathVideo] = useState(false);
 
-  const { toast } = useToast();
+  const {toast} = useToast();
   const router = useRouter();
 
-  const { data, isLoading, isError } = useQuery({
+  const {data, isLoading, isError} = useQuery({
     queryKey: "videos",
     queryFn: async () => {
       const response = await axios.get(
@@ -74,16 +75,27 @@ export default function Home() {
   });
 
   const generateVideoMutation = useMutation({
-    mutationFn: async ({ prompt: topic, grade }) => {
+    mutationFn: async ({prompt: topic, grade, generateMathVideo}) => {
       console.log("Generating video for topic:", topic, grade);
-      const response = await axios.post(
-        "http://localhost:8000/generate_educational_content/",
-        {
-          topic: topic,
-          grade: grade,
-        }
-      );
-      return response.data;
+      if (generateMathVideo) {
+        const response = await axios.post(
+          "http://localhost:8000/generate_math_video/",
+          {
+            topic: topic,
+            grade: grade,
+          }
+        );
+        return response.data;
+      } else {
+        const response = await axios.post(
+          "http://localhost:8000/generate_educational_content/",
+          {
+            topic: topic,
+            grade: grade,
+          }
+        );
+        return response.data;
+      }
     },
     onSuccess: (data) => {
       console.log("Video generated:", data);
@@ -128,7 +140,8 @@ export default function Home() {
     setFilteredVideos(videosToShow);
   }, [selectedCategory, videos]);
 
-  const handleClick = () => {
+  const handleClick = ({generateMathVideo}) => {
+    setGenerateMathVideo(generateMathVideo);
     if (!session) {
       router.push("/auth/signin");
       return;
@@ -139,8 +152,9 @@ export default function Home() {
     }
     setError("");
     // Clear error if input is valid
-    let grade = 1;
-    generateVideoMutation.mutate({ prompt, grade });
+    let grade = 4;
+
+    generateVideoMutation.mutate({prompt, grade, generateMathVideo});
   };
 
   return (
@@ -170,50 +184,89 @@ export default function Home() {
                 />
                 {error && <p className="text-red-500 text-sm">{error}</p>}
               </div>
-              <Button
-                className="text-xl w-fit py-5 px-8"
-                onClick={handleClick}
-                disabled={generateVideoMutation.isPending}
-              >
-                {generateVideoMutation.isPending ? (
-                  <svg
-                    aria-hidden="true"
-                    className="w-6 h-6 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
-                    viewBox="0 0 100 101"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                      fill="currentColor"
-                    />
-                    <path
-                      d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                      fill="currentFill"
-                    />
-                  </svg>
-                ) : (
-                  <IoSparklesSharp />
-                )}
-                <span className="ml-3">
-                  {generateVideoMutation.isPending
-                    ? "Generating Video..."
-                    : "Generate Video"}
-                </span>
-              </Button>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="text-xl w-fit py-5 px-8"
+                  onClick={() => handleClick({generateMathVideo: false})}
+                  disabled={generateVideoMutation.isPending}
+                >
+                  {!generateMathVideo && generateVideoMutation.isPending ? (
+                    <svg
+                      aria-hidden="true"
+                      className="w-6 h-6 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+                      viewBox="0 0 100 101"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                        fill="currentColor"
+                      />
+                      <path
+                        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                        fill="currentFill"
+                      />
+                    </svg>
+                  ) : (
+                    <IoSparklesSharp />
+                  )}
+                  <span className="ml-3">
+                    {!generateMathVideo && generateVideoMutation.isPending
+                      ? "Generating Video..."
+                      : "Generate Video"}
+                  </span>
+                </Button>
+                <Button
+                  className="text-xl w-fit py-5 px-8"
+                  onClick={() => handleClick({generateMathVideo: true})}
+                  disabled={generateVideoMutation.isPending}
+                >
+                  {generateMathVideo && generateVideoMutation.isPending ? (
+                    <svg
+                      aria-hidden="true"
+                      className="w-6 h-6 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+                      viewBox="0 0 100 101"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                        fill="currentColor"
+                      />
+                      <path
+                        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                        fill="currentFill"
+                      />
+                    </svg>
+                  ) : (
+                    <IoSparklesSharp />
+                  )}
+                  <span className="ml-3">
+                    {generateMathVideo && generateVideoMutation.isPending
+                      ? "Generating Math Video..."
+                      : "Generate Math Video"}
+                  </span>
+                </Button>
+              </div>
             </div>
           </div>
 
           <div className="mt-[150px]">
-            <h2 className="text-3xl">{
-              session?.user?.role === "teacher" ? "Sample Videos" : "Learn From Others"}</h2>
+            <h2 className="text-3xl">
+              {session?.user?.role === "teacher"
+                ? "Sample Videos"
+                : "Learn From Others"}
+            </h2>
             <hr className="border border-gray-200 my-2" />
             <div className="flex gap-2">
               {categories?.map((category) => (
                 <p
                   key={category}
-                  className={`border px-4 py-2 shadow-md rounded-full text-lg cursor-pointer ${selectedCategory === category ? "bg-black text-white" : ""
-                    }`}
+                  className={`border px-4 py-2 shadow-md rounded-full text-lg cursor-pointer ${
+                    selectedCategory === category ? "bg-black text-white" : ""
+                  }`}
                   onClick={() => setSelectedCategory(category)}
                 >
                   {category}
@@ -224,7 +277,9 @@ export default function Home() {
               id="videos"
               className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-10 mt-3 text-lg"
             >
-              {isLoading && <div className="bg-slate-600 text-center">Loading...</div>}
+              {isLoading && (
+                <div className="bg-slate-600 text-center">Loading...</div>
+              )}
               {isError && <div>Error fetching videos</div>}
               {filteredVideos.length > 0 &&
                 filteredVideos.map((video) => (
