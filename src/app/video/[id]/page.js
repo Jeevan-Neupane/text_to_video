@@ -14,53 +14,12 @@ import axios from "axios";
 import Query_Chat from "@/components/chat/query_chat";
 import Description from "@/components/ui/description";
 
-const mcqs = [
-  {
-    question: "What is the capital of France?",
-    options: ["Berlin", "Madrid", "Paris", "Rome"],
-    correctAnswer: "Paris",
-  },
-  {
-    question: "Which planet is known as the Red Planet?",
-    options: ["Earth", "Venus", "Mars", "Jupiter"],
-    correctAnswer: "Mars",
-  },
-  {
-    question: "Who wrote 'Hamlet'?",
-    options: [
-      "Charles Dickens",
-      "William Shakespeare",
-      "J.K. Rowling",
-      "Mark Twain",
-    ],
-    correctAnswer: "William Shakespeare",
-  },
-  {
-    question: "What is the smallest prime number?",
-    options: ["0", "1", "2", "3"],
-    correctAnswer: "2",
-  },
-  {
-    question: "What is the chemical symbol for water?",
-    options: ["O2", "H2O", "CO2", "NaCl"],
-    correctAnswer: "H2O",
-  },
-  {
-    question: "Which country is known as the Land of the Rising Sun?",
-    options: ["China", "Japan", "Thailand", "South Korea"],
-    correctAnswer: "Japan",
-  },
-  {
-    question: "What is the hardest natural substance on Earth?",
-    options: ["Gold", "Diamond", "Iron", "Silver"],
-    correctAnswer: "Diamond",
-  },
-];
+
 
 const Page = () => {
   const { id } = useParams();
+  const [mcqs, setMcqs] = useState([])
 
-  const [isLoading, setIsLoading] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [isSubmitted, setIsSubmitted] = useState([]); // Track submission for each question
@@ -102,9 +61,11 @@ const Page = () => {
     select: (data) => data.video,
   });
 
-  console.log("video", video);
 
-
+  useEffect(() => {
+    console.log("video", video);
+    setMcqs(video?.mcqs || []);
+  }, [video])
 
   const handleNext = () => {
     if (currentQuestionIndex < mcqs.length - 1) {
@@ -159,8 +120,8 @@ const Page = () => {
                     height="500px"
                     controls
                     autoplay
-                    poster={video.thumbnail||"https://images.unsplash.com/photo-1515310787031-25ac2d68610d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}
-                    className="w-full h-[500px] rounded-md object-cover"
+                    poster={video.thumbnail || "https://images.unsplash.com/photo-1515310787031-25ac2d68610d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}
+                    className="w-full h-[500px] rounded-md object-contain"
                   >
                     <source src={video.videoUrl} type="video/mp4" />
                   </video>
@@ -169,7 +130,7 @@ const Page = () => {
                   {video.title}
                 </h1>
                 <Query_Chat />
-                <Description description={video.caption}/>
+                <Description description={video.caption} />
               </div>
 
               <div className="w-[30%] pt-6 border-l border-l-gray-200">
