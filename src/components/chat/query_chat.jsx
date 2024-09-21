@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import Skeleton from "react-loading-skeleton";
+import 'react-loading-skeleton/dist/skeleton.css'
 import {
   IoSparklesSharp,
   IoMicOutline,
@@ -45,13 +46,12 @@ const Query_Chat = () => {
       redirect: "follow",
     };
 
-    const response = await fetch(
-      "http://localhost:8000/chat/",
-      requestOptions
-    );
+    const response = await fetch("http://localhost:8000/chat/", requestOptions);
     if (!response.ok) throw new Error("Network response was not ok");
     return response.json();
   };
+
+  console.log("isLoading", isLoading);
 
   const mutation = useMutation({
     mutationFn: fetchAnswer,

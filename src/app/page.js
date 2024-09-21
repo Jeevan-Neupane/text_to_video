@@ -224,7 +224,7 @@ export default function Home() {
               id="videos"
               className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-10 mt-3 text-lg"
             >
-              {isLoading && <div>Loading...</div>}
+              {isLoading && <div className="bg-slate-600 text-center">Loading...</div>}
               {isError && <div>Error fetching videos</div>}
               {filteredVideos.length > 0 &&
                 filteredVideos.map((video) => (
