@@ -29,7 +29,7 @@ export default function RootLayout({children}) {
       >
         <ReactQueryProvider>
           <AuthProvider>
-            <div className="bg-white text-black flex flex-col">
+            <div className="bg-white text-black flex flex-col min-h-screen">
               <Navbar />
               <div>{children}</div>
               <Toaster />

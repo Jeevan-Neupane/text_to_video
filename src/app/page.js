@@ -1,6 +1,6 @@
 "use client";
 import {IoSparklesSharp} from "react-icons/io5";
-import {use, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import Link from "next/link";
 import {v4 as uuidv4} from "uuid";
 import {Input} from "@/components/ui/input";
@@ -12,65 +12,18 @@ import {useToast} from "@/hooks/use-toast";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/navigation";
 import {formatDate} from "@/lib/utils";
-const categories = ["All", "Trending", "New", "Kids"];
 import {FaPlay} from "react-icons/fa";
-
-const videos = [
-  {
-    id: uuidv4(),
-    title: "Learn simple English words",
-    category: ["Trending", "Kids"],
-    author: "Anil Stha",
-    createdAt: "20 sep 2024",
-  },
-  {
-    id: uuidv4(),
-    title: "Learn simple English words",
-    category: ["Trending"],
-    author: "Anil Stha",
-    createdAt: "20 sep 2024",
-  },
-  {
-    id: uuidv4(),
-    title: "Learn simple English words",
-    category: ["Kids"],
-    author: "Anil Stha",
-    createdAt: "20 sep 2024",
-  },
-  {
-    id: uuidv4(),
-    title: "Learn simple English words",
-    category: ["Trending", "Kids"],
-    author: "Anil Stha",
-    createdAt: "20 sep 2024",
-  },
-  {
-    id: uuidv4(),
-    title: "Learn simple English words",
-    category: ["New"],
-    author: "Anil Stha",
-    createdAt: "20 sep 2024",
-  },
-  {
-    id: uuidv4(),
-    title: "Learn simple English words",
-    category: ["Trending"],
-    author: "Anil Stha",
-    createdAt: "20 sep 2024",
-  },
-];
 
 export default function Home() {
   const {data: session} = useSession();
-
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [videos, setVidoes] = useState([]);
-  const [filteredVideos, setFilteredVideos] = useState();
+  const [videos, setVideos] = useState([]);
+  const [filteredVideos, setFilteredVideos] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   const {toast} = useToast();
-
   const router = useRouter();
 
   const {data, isLoading, isError} = useQuery({
@@ -104,13 +57,11 @@ export default function Home() {
       return response.data;
     },
     onSuccess: (data) => {
-      // Handle success (e.g., show a message, update state)
       console.log("Video added:", data);
       setPrompt("");
       router.push(`/video/${data.video._id}`);
     },
     onError: (error) => {
-      // Handle error
       console.error("Error adding video:", error);
       toast({
         variant: "destructive",
@@ -120,45 +71,30 @@ export default function Home() {
     },
   });
 
-  useEffect(() => {
-    if (data) {
-      console.log("Data:", data);
-      setVidoes(data);
-      setFilteredVideos(data);
-    }
-  }, [data]);
-
   const generateVideoMutation = useMutation({
     mutationFn: async (prompt) => {
-      // const response = await axios.post(
-      //   "https://educational-video-generator.onrender.com/generate_video",
-      //   {},
-      //   {
-      //     params: {
-      //       title: prompt,
-      //     },
-      //   }
-      // );
-      // return response.data;
-
-      return {
-        video_url:
-          "https://res.cloudinary.com/chatappjeevanneupane/video/upload/v1726849091/rkxqu7yfcbyoxyqcf9hf.mp4",
-      };
+      const response = await axios.post(
+        "https://educational-video-generator.onrender.com/generate_video",
+        {},
+        {
+          params: {
+            title: prompt,
+          },
+        }
+      );
+      return response.data;
     },
     onSuccess: (data) => {
-      // Handle success (e.g., show a message, update state)
       console.log("Video generated:", data);
       addVideoMutation.mutate({
         user: session.user.id,
         title: prompt,
         videoUrl: data.video_url,
         mcqs: [],
-        category: "New",
+        category: "Math",
       });
     },
     onError: (error) => {
-      // Handle error
       console.error("Error generating video:", error);
       toast({
         variant: "destructive",
@@ -168,15 +104,18 @@ export default function Home() {
     },
   });
 
-  const handleClick = () => {
-    if (prompt.length < 5) {
-      setError("Input must be at least 10 characters long.");
-      return;
+  useEffect(() => {
+    if (data) {
+      console.log("Data:", data);
+      setVideos(data);
+      setFilteredVideos(data);
+
+      const uniqueCategories = [
+        ...new Set(data.map((video) => video.category)),
+      ];
+      setCategories(["All", ...uniqueCategories]);
     }
-    setError(""); // Clear error if input is valid
-    console.log(prompt);
-    generateVideoMutation.mutate(prompt);
-  };
+  }, [data]);
 
   useEffect(() => {
     const videosToShow =
@@ -184,7 +123,16 @@ export default function Home() {
         ? videos
         : videos.filter((video) => video.category.includes(selectedCategory));
     setFilteredVideos(videosToShow);
-  }, [selectedCategory]);
+  }, [selectedCategory, videos]);
+
+  const handleClick = () => {
+    if (prompt.length < 5) {
+      setError("Input must be at least 5 characters long.");
+      return;
+    }
+    setError(""); // Clear error if input is valid
+    generateVideoMutation.mutate(prompt);
+  };
 
   return (
     <div className="min-h-screen">
@@ -213,7 +161,6 @@ export default function Home() {
                 />
                 {error && <p className="text-red-500 text-sm">{error}</p>}
               </div>
-
               <Button
                 className="text-lg w-fit"
                 onClick={handleClick}
@@ -222,7 +169,7 @@ export default function Home() {
                 {generateVideoMutation.isPending ? (
                   <svg
                     aria-hidden="true"
-                    class="w-6 h-6 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+                    className="w-6 h-6 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
                     viewBox="0 0 100 101"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -239,7 +186,6 @@ export default function Home() {
                 ) : (
                   <IoSparklesSharp />
                 )}
-
                 <span className="ml-3">
                   {generateVideoMutation.isPending
                     ? "Generating Video..."
@@ -253,7 +199,7 @@ export default function Home() {
             <h2 className="text-3xl">Learn From Other Videos</h2>
             <hr className="border border-gray-200 my-2" />
             <div className="flex gap-2">
-              {categories.map((category) => (
+              {categories?.map((category) => (
                 <p
                   key={category}
                   className={`border px-4 py-2 shadow-md rounded-full text-lg cursor-pointer ${
@@ -266,29 +212,29 @@ export default function Home() {
               ))}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-10 mt-3 text-lg">
-              {filteredVideos?.map((video) => (
-                <Link key={video.id} href={`/video/${video._id}`}>
-                  <div className="relative w-full h-[300px] rounded-md overflow-hidden group">
-                    <img
-                      src="https://images.unsplash.com/photo-1515310787031-25ac2d68610d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                      alt={video.title}
-                      width="500"
-                      height="300"
-                      className="w-full h-[300px] rounded-md object-cover group-hover:scale-110 transition-all duration-300 ease-in-out"
-                    />
-                    <span className="hidden group-hover:block">
-                      <FaPlay className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-5xl text-white" />
-                    </span>
-                  </div>
-
-                  <p className="text-lg mt-2 uppercase">{video.title}</p>
-                  <p className="w-full flex text-base text-muted-foreground">
-                    <span className="">By {video.user.name}</span>
-                    <span className="mx-2">•</span>
-                    <span className="">{formatDate(video.createdAt)}</span>
-                  </p>
-                </Link>
-              ))}
+              {isLoading && <div>Loading...</div>}
+              {isError && <div>Error fetching videos</div>}
+              {filteredVideos.length > 0 &&
+                filteredVideos.map((video) => (
+                  <Link key={video.id} href={`/video/${video._id}`}>
+                    <div className="relative w-full h-[300px] rounded-md overflow-hidden group">
+                      <img
+                        src="https://images.unsplash.com/photo-1515310787031-25ac2d68610d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        alt={video.title}
+                        className="w-full h-[300px] rounded-md object-cover group-hover:scale-110 transition-all duration-300 ease-in-out"
+                      />
+                      <span className="hidden group-hover:block">
+                        <FaPlay className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-5xl text-white" />
+                      </span>
+                    </div>
+                    <p className="text-lg mt-2 uppercase">{video.title}</p>
+                    <p className="w-full flex text-base text-muted-foreground">
+                      <span>By {video.user.name}</span>
+                      <span className="mx-2">•</span>
+                      <span>{formatDate(video.createdAt)}</span>
+                    </p>
+                  </Link>
+                ))}
             </div>
           </div>
         </MaxWidthWrapper>
