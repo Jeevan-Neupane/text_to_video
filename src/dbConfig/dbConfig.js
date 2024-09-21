@@ -6,17 +6,26 @@ export async function connect() {
     if (!MONGO_URL) {
       throw new Error("Mongo URL not found");
     }
-    mongoose.connect(process.env.MONGO_URL);
+
+    // Use options to handle connection timeouts and retries
+    await mongoose.connect(MONGO_URL, {
+      useNewUrlParser: true, 
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 30000,  // 30 seconds timeout
+      connectTimeoutMS: 30000,          // 30 seconds connection timeout
+    });
+
     const connection = mongoose.connection;
 
     connection.on("connected", () => {
-      console.log("MongoDb connected successfully");
+      console.log("MongoDB connected successfully");
     });
 
-    connection.on("error", () => {
-      console.log("MongoDb connection error");
+    connection.on("error", (err) => {
+      console.error("MongoDB connection error:", err);
     });
+
   } catch (error) {
-    console.log("something went wrong");
+    console.error("Something went wrong with MongoDB connection:", error);
   }
 }

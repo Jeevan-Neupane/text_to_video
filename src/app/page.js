@@ -1,21 +1,21 @@
 "use client";
-import {IoSparklesSharp} from "react-icons/io5";
-import {useEffect, useState} from "react";
+import { IoSparklesSharp } from "react-icons/io5";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import {v4 as uuidv4} from "uuid";
-import {Input} from "@/components/ui/input";
-import {Button} from "@/components/ui/button";
+import { v4 as uuidv4 } from "uuid";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import MaxWidthWrapper from "@/components/common/max-width-wrapper";
-import {useMutation, useQuery} from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import {useToast} from "@/hooks/use-toast";
-import {useSession} from "next-auth/react";
-import {useRouter} from "next/navigation";
-import {formatDate} from "@/lib/utils";
-import {FaPlay} from "react-icons/fa";
+import { useToast } from "@/hooks/use-toast";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { formatDate } from "@/lib/utils";
+import { FaPlay } from "react-icons/fa";
 
 export default function Home() {
-  const {data: session} = useSession();
+  const { data: session } = useSession();
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -23,10 +23,10 @@ export default function Home() {
   const [filteredVideos, setFilteredVideos] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  const {toast} = useToast();
+  const { toast } = useToast();
   const router = useRouter();
 
-  const {data, isLoading, isError} = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: "videos",
     queryFn: async () => {
       const response = await axios.get(
@@ -73,15 +73,14 @@ export default function Home() {
   });
 
   const generateVideoMutation = useMutation({
-    mutationFn: async (prompt) => {
+    mutationFn: async ({ prompt:topic, grade }) => {
+      console.log("Generating video for topic:", topic,grade);
       const response = await axios.post(
-        "https://educational-video-generator.onrender.com/generate_video",
-        {},
+        "http://localhost:8000/generate_educational_content/",
         {
-          params: {
-            title: prompt,
-          },
-        }
+          topic: topic,
+          grade: grade,
+        },
       );
       return response.data;
     },
@@ -131,8 +130,10 @@ export default function Home() {
       setError("Input must be at least 5 characters long.");
       return;
     }
-    setError(""); // Clear error if input is valid
-    generateVideoMutation.mutate(prompt);
+    setError("");
+    // Clear error if input is valid
+    let grade = 1;
+    generateVideoMutation.mutate({prompt, grade});
   };
 
   return (
@@ -203,9 +204,8 @@ export default function Home() {
               {categories?.map((category) => (
                 <p
                   key={category}
-                  className={`border px-4 py-2 shadow-md rounded-full text-lg cursor-pointer ${
-                    selectedCategory === category ? "bg-black text-white" : ""
-                  }`}
+                  className={`border px-4 py-2 shadow-md rounded-full text-lg cursor-pointer ${selectedCategory === category ? "bg-black text-white" : ""
+                    }`}
                   onClick={() => setSelectedCategory(category)}
                 >
                   {category}

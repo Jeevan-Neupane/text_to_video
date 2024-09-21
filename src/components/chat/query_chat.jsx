@@ -46,7 +46,7 @@ const Query_Chat = () => {
     };
 
     const response = await fetch(
-      "https://educational-video-generator.onrender.com/chat",
+      "http://localhost:8000/chat/",
       requestOptions
     );
     if (!response.ok) throw new Error("Network response was not ok");
