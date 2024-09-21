@@ -22,7 +22,7 @@ const Page = () => {
   const { data: session } = useSession();
   const [submitted, setSubmitted] = useState(false);
 
-  const {toast}=useToast();
+  const { toast } = useToast();
   const queryClient = useQueryClient()
 
   const {
@@ -80,8 +80,8 @@ const Page = () => {
       setCurrentQuestionIndex((prev) => prev + 1);
     }
 
-    if(currentQuestionIndex === mcqs.length - 1) {
-      mutation.mutate({id: session?.user.id, rewards: score});
+    if (currentQuestionIndex === mcqs.length - 1) {
+      mutation.mutate({ id: session?.user.id, rewards: score });
     }
 
   };
@@ -111,10 +111,7 @@ const Page = () => {
       setScore((prevScore) => prevScore + 10);
     }
 
-    const userData = {
-      id: "66ed6ab3484bd204309dd44a",
-      rewards: score,
-    };
+
   };
 
   return (
@@ -122,7 +119,7 @@ const Page = () => {
       <div className="mb-8">
         <MaxWidthWrapper>
           {video && (
-            <div className="w-full flex gap-10">
+            <div className="w-full flex gap-10 justify-center">
               <div className="w-[70%]">
                 <div className="pt-4 w-full flex justify-center items-center flex-col text-center">
                   <video
@@ -141,42 +138,44 @@ const Page = () => {
                 <Description description={video.caption} />
               </div>
 
-              <div className="w-[30%] pt-6 border-l border-l-gray-200">
-                <h1 className="text-3xl font-bold text-center mb-2">MCQ Quizzes</h1>
-                <div className="mb-4 ml-2">
-                  <p className="text-lg font-semibold">Total Questions: {mcqs.length}</p>
-                  <p className="text-lg font-semibold">Correct Questions: {score / 10}</p>
-                  <p className="text-lg font-semibold">Score: {score}</p>
-                </div>
-                <div className="border-t">
-                  <div className="flex flex-col p-6">
-                    {mcqs.length > 0 && (
-                      <MCQQuestion
-                        questionId={currentQuestionIndex}
-                        question={mcqs[currentQuestionIndex].question}
-                        options={mcqs[currentQuestionIndex].options}
-                        correctAnswer={mcqs[currentQuestionIndex].correctAnswer}
-                        selectedOption={selectedOptions[currentQuestionIndex] || null}
-                        isSubmitted={isSubmitted[currentQuestionIndex] || false}
-                        onOptionChange={handleOptionChange}
-                        onSubmit={handleSubmit}
-                        score={score}
-                        setScore={setScore}
-                        setCorrectAnswers={setCorrectAnswers}
-                        currentQuestionNumber={currentQuestionIndex + 1}
-                      />
-                    )}
-                    <div className="flex justify-between mt-4">
-                      <Button onClick={handlePrevious} disabled={currentQuestionIndex === 0}>
-                        Previous
-                      </Button>
-                      <Button onClick={handleNext} disabled={currentQuestionIndex === mcqs.length - 1&&submitted }>
-                        {currentQuestionIndex === mcqs.length - 1&&!submitted ? "Completed" : "Next"}
-                      </Button>
+              {
+                session?.user?.role === "student" ? (<div className="w-[30%] pt-6 border-l border-l-gray-200">
+                  <h1 className="text-3xl font-bold text-center mb-2">MCQ Quizzes</h1>
+                  <div className="mb-4 ml-2">
+                    <p className="text-lg font-semibold">Total Questions: {mcqs.length}</p>
+                    <p className="text-lg font-semibold">Correct Questions: {score / 10}</p>
+                    <p className="text-lg font-semibold">Score: {score}</p>
+                  </div>
+                  <div className="border-t">
+                    <div className="flex flex-col p-6">
+                      {mcqs.length > 0 && (
+                        <MCQQuestion
+                          questionId={currentQuestionIndex}
+                          question={mcqs[currentQuestionIndex].question}
+                          options={mcqs[currentQuestionIndex].options}
+                          correctAnswer={mcqs[currentQuestionIndex].correctAnswer}
+                          selectedOption={selectedOptions[currentQuestionIndex] || null}
+                          isSubmitted={isSubmitted[currentQuestionIndex] || false}
+                          onOptionChange={handleOptionChange}
+                          onSubmit={handleSubmit}
+                          score={score}
+                          setScore={setScore}
+                          setCorrectAnswers={setCorrectAnswers}
+                          currentQuestionNumber={currentQuestionIndex + 1}
+                        />
+                      )}
+                      <div className="flex justify-between mt-4">
+                        <Button onClick={handlePrevious} disabled={currentQuestionIndex === 0}>
+                          Previous
+                        </Button>
+                        <Button onClick={handleNext} disabled={currentQuestionIndex === mcqs.length - 1 && submitted}>
+                          {currentQuestionIndex === mcqs.length - 1 && !submitted ? "Completed" : "Next"}
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                </div>) : null
+              }
             </div>
           )}
         </MaxWidthWrapper>
