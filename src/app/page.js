@@ -133,7 +133,7 @@ export default function Home() {
       router.push("/auth/signin");
       return;
     }
-    if (prompt.length < 5) {
+    if (prompt.length < 1) {
       setError("Input must be at least 5 characters long.");
       return;
     }

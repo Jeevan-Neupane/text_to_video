@@ -9,6 +9,7 @@ import axios from "axios";
 import Query_Chat from "@/components/chat/query_chat";
 import Description from "@/components/ui/description";
 import { useSession } from "next-auth/react";
+import { useToast } from "@/hooks/use-toast";
 
 const Page = () => {
   const { id } = useParams();
@@ -19,7 +20,9 @@ const Page = () => {
   const [correctAnswers, setCorrectAnswers] = useState("");
   const [score, setScore] = useState(0);
   const { data: session } = useSession();
+  const [submitted, setSubmitted] = useState(false);
 
+  const {toast}=useToast();
   const queryClient = useQueryClient()
 
   const {
@@ -45,15 +48,20 @@ const Page = () => {
 
   const mutation = useMutation({
     mutationFn: async (data) => {
-      const response = await axios.post("http://localhost:3000/api/user", data);
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
+      const response = await axios.put("http://localhost:3000/api/user", data);
+
+      return response.data;
     },
     onSuccess: (data) => {
       console.log("Data submitted successfully:", data);
-      queryClient.invalidateQueries('user')
+      setSubmitted(true);
+      queryClient.invalidateQueries(['user'])
+      console.log("User data updated");
+
+      toast({
+        title: "Success",
+        description: "Rewards submitted successfully.",
+      })
 
     },
     onError: (error) => {
@@ -72,6 +80,9 @@ const Page = () => {
       setCurrentQuestionIndex((prev) => prev + 1);
     }
 
+    if(currentQuestionIndex === mcqs.length - 1) {
+      mutation.mutate({id: session?.user.id, rewards: score});
+    }
 
   };
 
@@ -104,8 +115,6 @@ const Page = () => {
       id: "66ed6ab3484bd204309dd44a",
       rewards: score,
     };
-
-    mutation.mutate(userData);
   };
 
   return (
@@ -161,8 +170,8 @@ const Page = () => {
                       <Button onClick={handlePrevious} disabled={currentQuestionIndex === 0}>
                         Previous
                       </Button>
-                      <Button onClick={handleNext}>
-                        {currentQuestionIndex === mcqs.length - 1 ? "Completed" : "Next"}
+                      <Button onClick={handleNext} disabled={currentQuestionIndex === mcqs.length - 1&&submitted }>
+                        {currentQuestionIndex === mcqs.length - 1&&!submitted ? "Completed" : "Next"}
                       </Button>
                     </div>
                   </div>

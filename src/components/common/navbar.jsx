@@ -26,9 +26,8 @@ function Navbar() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: "user",
+    queryKey: ["user"],
     queryFn: async () => {
-      console.log("hellooooooo");
       const response = await axios.get("http://localhost:3000/api/user");
 
       console.log("response", response);
