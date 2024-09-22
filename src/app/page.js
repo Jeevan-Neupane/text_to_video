@@ -223,7 +223,7 @@ export default function Home() {
                 />
                 {error && <p className="text-red-500 text-sm">{error}</p>}
                 <button
-                  className=" w-12 flex items-center justify-center  shadow-md px-2" 
+                  className=" w-12 flex items-center justify-center  shadow-md px-2"
                   onClick={toggleListening}
                 >
                   {isListening ? (
@@ -239,7 +239,7 @@ export default function Home() {
                 <Button
                   variant="outline"
                   className="text-xl w-fit py-5 px-8"
-                  onClick={() => handleClick({ generateMathVideo: false })}
+                  onClick={() => handleClick({generateMathVideo: false})}
                   disabled={generateVideoMutation.isPending}
                 >
                   {!generateMathVideo && generateVideoMutation.isPending ? (
@@ -270,7 +270,7 @@ export default function Home() {
                 </Button>
                 <Button
                   className="text-xl w-fit py-5 px-8"
-                  onClick={() => handleClick({ generateMathVideo: true })}
+                  onClick={() => handleClick({generateMathVideo: true})}
                   disabled={generateVideoMutation.isPending}
                 >
                   {generateMathVideo && generateVideoMutation.isPending ? (
@@ -314,8 +314,9 @@ export default function Home() {
               {categories?.map((category) => (
                 <p
                   key={category}
-                  className={`border px-4 py-2 shadow-md rounded-full text-lg cursor-pointer ${selectedCategory === category ? "bg-black text-white" : ""
-                    }`}
+                  className={`border px-4 py-2 shadow-md rounded-full text-lg cursor-pointer ${
+                    selectedCategory === category ? "bg-black text-white" : ""
+                  }`}
                   onClick={() => setSelectedCategory(category)}
                 >
                   {category}
@@ -337,7 +338,7 @@ export default function Home() {
                       <img
                         src={
                           video.thumbnail ||
-                          "https://images.unsplash.com/photo-1515310787031-25ac2d68610d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                          "https://i.ytimg.com/vi/I0MwXnKSIAM/maxresdefault.jpg"
                         }
                         alt={video.title}
                         className="w-full h-[300px] rounded-md object-cover group-hover:scale-110 transition-all duration-300 ease-in-out"

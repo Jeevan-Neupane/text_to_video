@@ -127,23 +127,34 @@ const Page = () => {
                     height="500px"
                     controls
                     autoplay
-                    poster={video.thumbnail || "https://images.unsplash.com/photo-1515310787031-25ac2d68610d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}
+                    poster={
+                      video.thumbnail ||
+                      "https://i.ytimg.com/vi/I0MwXnKSIAM/maxresdefault.jpg"
+                    }
                     className="w-full h-[500px] rounded-md object-contain"
                   >
                     <source src={video.videoUrl} type="video/mp4" />
                   </video>
                 </div>
-                <h1 className="text-4xl font-bold mt-5 uppercase">{video.title}</h1>
+                <h1 className="text-4xl font-bold mt-5 uppercase">
+                  {video.title}
+                </h1>
                 <Query_Chat />
                 <Description description={video.caption} />
               </div>
 
-              {
-                session?.user?.role === "student" ? (<div className="w-[30%] pt-6 border-l border-l-gray-200">
-                  <h1 className="text-3xl font-bold text-center mb-2">MCQ Quizzes</h1>
+              {session?.user?.role === "student" ? (
+                <div className="w-[30%] pt-6 border-l border-l-gray-200">
+                  <h1 className="text-3xl font-bold text-center mb-2">
+                    MCQ Quizzes
+                  </h1>
                   <div className="mb-4 ml-2">
-                    <p className="text-lg font-semibold">Total Questions: {mcqs.length}</p>
-                    <p className="text-lg font-semibold">Correct Questions: {score / 10}</p>
+                    <p className="text-lg font-semibold">
+                      Total Questions: {mcqs.length}
+                    </p>
+                    <p className="text-lg font-semibold">
+                      Correct Questions: {score / 10}
+                    </p>
                     <p className="text-lg font-semibold">Score: {score}</p>
                   </div>
                   <div className="border-t">
@@ -153,9 +164,15 @@ const Page = () => {
                           questionId={currentQuestionIndex}
                           question={mcqs[currentQuestionIndex].question}
                           options={mcqs[currentQuestionIndex].options}
-                          correctAnswer={mcqs[currentQuestionIndex].correctAnswer}
-                          selectedOption={selectedOptions[currentQuestionIndex] || null}
-                          isSubmitted={isSubmitted[currentQuestionIndex] || false}
+                          correctAnswer={
+                            mcqs[currentQuestionIndex].correctAnswer
+                          }
+                          selectedOption={
+                            selectedOptions[currentQuestionIndex] || null
+                          }
+                          isSubmitted={
+                            isSubmitted[currentQuestionIndex] || false
+                          }
                           onOptionChange={handleOptionChange}
                           onSubmit={handleSubmit}
                           score={score}
@@ -165,17 +182,29 @@ const Page = () => {
                         />
                       )}
                       <div className="flex justify-between mt-4">
-                        <Button onClick={handlePrevious} disabled={currentQuestionIndex === 0}>
+                        <Button
+                          onClick={handlePrevious}
+                          disabled={currentQuestionIndex === 0}
+                        >
                           Previous
                         </Button>
-                        <Button onClick={handleNext} disabled={currentQuestionIndex === mcqs.length - 1 && submitted}>
-                          {currentQuestionIndex === mcqs.length - 1 && !submitted ? "Completed" : "Next"}
+                        <Button
+                          onClick={handleNext}
+                          disabled={
+                            currentQuestionIndex === mcqs.length - 1 &&
+                            submitted
+                          }
+                        >
+                          {currentQuestionIndex === mcqs.length - 1 &&
+                          !submitted
+                            ? "Completed"
+                            : "Next"}
                         </Button>
                       </div>
                     </div>
                   </div>
-                </div>) : null
-              }
+                </div>
+              ) : null}
             </div>
           )}
         </MaxWidthWrapper>
