@@ -1,6 +1,6 @@
 "use client";
 import { IoSparklesSharp } from "react-icons/io5";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { formatDate } from "@/lib/utils";
-import { FaPlay } from "react-icons/fa";
+import { FaMicrophone, FaMicrophoneSlash, FaPlay } from "react-icons/fa";
 
 export default function Home() {
   const { data: session } = useSession();
@@ -23,11 +23,50 @@ export default function Home() {
   const [filteredVideos, setFilteredVideos] = useState([]);
   const [categories, setCategories] = useState([]);
   const [generateMathVideo, setGenerateMathVideo] = useState(false);
-
-  const {toast} = useToast();
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
+  const { toast } = useToast();
   const router = useRouter();
 
-  const {data, isLoading, isError} = useQuery({
+
+  useEffect(() => {
+    if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognitionRef.current = recognition;
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = "en-US";
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setPrompt((prev) => prev + transcript); // Add spoken words to input
+        setIsListening(false);
+      };
+
+      recognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        setIsListening(false);
+      };
+    } else {
+      console.error("Speech Recognition API not supported.");
+    }
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) return;
+
+    if (!isListening) {
+      recognitionRef.current.start();
+      setIsListening(true);
+    } else {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    }
+  };
+
+  const { data, isLoading, isError } = useQuery({
     queryKey: "videos",
     queryFn: async () => {
       const response = await axios.get(
@@ -75,7 +114,7 @@ export default function Home() {
   });
 
   const generateVideoMutation = useMutation({
-    mutationFn: async ({prompt: topic, grade, generateMathVideo}) => {
+    mutationFn: async ({ prompt: topic, grade, generateMathVideo }) => {
       console.log("Generating video for topic:", topic, grade);
       if (generateMathVideo) {
         const response = await axios.post(
@@ -140,7 +179,7 @@ export default function Home() {
     setFilteredVideos(videosToShow);
   }, [selectedCategory, videos]);
 
-  const handleClick = ({generateMathVideo}) => {
+  const handleClick = ({ generateMathVideo }) => {
     setGenerateMathVideo(generateMathVideo);
     if (!session) {
       router.push("/auth/signin");
@@ -154,7 +193,7 @@ export default function Home() {
     // Clear error if input is valid
     let grade = 4;
 
-    generateVideoMutation.mutate({prompt, grade, generateMathVideo});
+    generateVideoMutation.mutate({ prompt, grade, generateMathVideo });
   };
 
   return (
@@ -174,7 +213,7 @@ export default function Home() {
               </div>
             </h2>
             <div className="mx-auto max-w-[900px] flex flex-col gap-5 mt-20 text-5xl border border-gray-200 p-5 rounded-lg shadow-md">
-              <div>
+              <div className="flex">
                 <Input
                   placeholder="Enter anything you want to learn..."
                   className="text-lg h-[60px]"
@@ -183,13 +222,24 @@ export default function Home() {
                   onChange={(e) => setPrompt(e.target.value)}
                 />
                 {error && <p className="text-red-500 text-sm">{error}</p>}
+                <button
+                  className=" w-12 flex items-center justify-center  shadow-md px-2" 
+                  onClick={toggleListening}
+                >
+                  {isListening ? (
+                    <FaMicrophoneSlash className="text-red-500 text-2xl" />
+                  ) : (
+                    <FaMicrophone className="text-blue-500 text-2xl" />
+                  )}
+                </button>
+                {error && <p className="text-red-500 text-sm">{error}</p>}
               </div>
 
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   className="text-xl w-fit py-5 px-8"
-                  onClick={() => handleClick({generateMathVideo: false})}
+                  onClick={() => handleClick({ generateMathVideo: false })}
                   disabled={generateVideoMutation.isPending}
                 >
                   {!generateMathVideo && generateVideoMutation.isPending ? (
@@ -220,7 +270,7 @@ export default function Home() {
                 </Button>
                 <Button
                   className="text-xl w-fit py-5 px-8"
-                  onClick={() => handleClick({generateMathVideo: true})}
+                  onClick={() => handleClick({ generateMathVideo: true })}
                   disabled={generateVideoMutation.isPending}
                 >
                   {generateMathVideo && generateVideoMutation.isPending ? (
@@ -264,9 +314,8 @@ export default function Home() {
               {categories?.map((category) => (
                 <p
                   key={category}
-                  className={`border px-4 py-2 shadow-md rounded-full text-lg cursor-pointer ${
-                    selectedCategory === category ? "bg-black text-white" : ""
-                  }`}
+                  className={`border px-4 py-2 shadow-md rounded-full text-lg cursor-pointer ${selectedCategory === category ? "bg-black text-white" : ""
+                    }`}
                   onClick={() => setSelectedCategory(category)}
                 >
                   {category}
