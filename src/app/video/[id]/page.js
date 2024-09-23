@@ -32,8 +32,8 @@ const Page = () => {
   } = useQuery({
     queryKey: ["video", id],
     queryFn: async () => {
-      const response = await axios.get("http://localhost:3000/api/video/getById", {
-        params: { id },
+      const response = await axios.get("/api/video/getById", {
+        params: {id},
       });
       return response.data;
     },
@@ -48,21 +48,20 @@ const Page = () => {
 
   const mutation = useMutation({
     mutationFn: async (data) => {
-      const response = await axios.put("http://localhost:3000/api/user", data);
+      const response = await axios.put("/api/user", data);
 
       return response.data;
     },
     onSuccess: (data) => {
       console.log("Data submitted successfully:", data);
       setSubmitted(true);
-      queryClient.invalidateQueries(['user'])
+      queryClient.invalidateQueries(["user"]);
       console.log("User data updated");
 
       toast({
         title: "Success",
         description: "Rewards submitted successfully.",
-      })
-
+      });
     },
     onError: (error) => {
       console.error("Error submitting data:", error);

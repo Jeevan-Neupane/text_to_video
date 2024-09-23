@@ -9,13 +9,11 @@ connect();
 export async function GET(request) {
   try {
     const session = await getServerSession(authOptions);
-    console.log("hello", session);
     if (!session) {
       return NextResponse.json({error: "Unauthorized"}, {status: 401});
     }
     const userId = session.user.id;
 
-    console.log(userId);
     const user = await User.findById(userId).select("-password");
     if (!user) {
       return NextResponse.json({error: "User not found"}, {status: 404});
@@ -35,7 +33,6 @@ export async function PUT(request) {
   try {
     const data = await request.json();
     const {id, rewards} = data;
-    console.log(data);
 
     const user = await User.findById(id).select("-password");
     if (!user) {

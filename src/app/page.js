@@ -14,8 +14,7 @@ import { formatDate } from "@/lib/utils";
 import { FaMicrophone, FaMicrophoneSlash, FaPlay } from "react-icons/fa";
 
 export default function Home() {
-  const { data: session } = useSession();
-  console.log("Session:", session);
+  const {data: session} = useSession();
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -25,9 +24,8 @@ export default function Home() {
   const [generateMathVideo, setGenerateMathVideo] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef(null);
-  const { toast } = useToast();
+  const {toast} = useToast();
   const router = useRouter();
-
 
   useEffect(() => {
     if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
@@ -66,12 +64,10 @@ export default function Home() {
     }
   };
 
-  const { data, isLoading, isError } = useQuery({
+  const {data, isLoading, isError} = useQuery({
     queryKey: "videos",
     queryFn: async () => {
-      const response = await axios.get(
-        "http://localhost:3000/api/video/getAllVideo"
-      );
+      const response = await axios.get("/api/video/getAllVideo");
 
       return response.data;
     },
@@ -91,11 +87,7 @@ export default function Home() {
 
   const addVideoMutation = useMutation({
     mutationFn: async (video) => {
-      console.log("Adding video:", video);
-      const response = await axios.post(
-        "http://localhost:3000/api/video/addVideo",
-        video
-      );
+      const response = await axios.post("/api/video/addVideo", video);
       return response.data;
     },
     onSuccess: (data) => {
@@ -114,11 +106,10 @@ export default function Home() {
   });
 
   const generateVideoMutation = useMutation({
-    mutationFn: async ({ prompt: topic, grade, generateMathVideo }) => {
-      console.log("Generating video for topic:", topic, grade);
+    mutationFn: async ({prompt: topic, grade, generateMathVideo}) => {
       if (generateMathVideo) {
         const response = await axios.post(
-          "http://localhost:8000/generate_math_video/",
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/generate_math_video/`,
           {
             topic: topic,
             grade: grade,
@@ -127,7 +118,7 @@ export default function Home() {
         return response.data;
       } else {
         const response = await axios.post(
-          "http://localhost:8000/generate_educational_content/",
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/generate_educational_content/`,
           {
             topic: topic,
             grade: grade,
@@ -137,7 +128,6 @@ export default function Home() {
       }
     },
     onSuccess: (data) => {
-      console.log("Video generated:", data);
       addVideoMutation.mutate({
         user: session?.user.id,
         title: data?.video_title,
@@ -160,7 +150,6 @@ export default function Home() {
 
   useEffect(() => {
     if (data) {
-      console.log("Data:", data);
       setVideos(data);
       setFilteredVideos(data);
 

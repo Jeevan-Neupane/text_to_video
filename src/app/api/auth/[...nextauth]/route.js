@@ -22,7 +22,6 @@ export const authOptions = {
 
         const {email, password} = credentials;
         const user = await User.findOne({email});
-        console.log(user);
         if (user) {
           const validPassword = await bcryptjs.compare(password, user.password);
           if (!validPassword) {
