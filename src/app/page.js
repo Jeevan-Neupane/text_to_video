@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import MaxWidthWrapper from "@/components/common/max-width-wrapper";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { useToast } from "@/hooks/use-toast";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { formatDate } from "@/lib/utils";
-import { FaMicrophone, FaMicrophoneSlash, FaPlay } from "react-icons/fa";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/navigation";
+import {formatDate} from "@/lib/utils";
+import {FaMicrophone, FaMicrophoneSlash, FaPlay} from "react-icons/fa";
+import {useToast} from "@/hooks/use-toast";
 
 export default function Home() {
   const {data: session} = useSession();
@@ -168,10 +168,10 @@ export default function Home() {
     setFilteredVideos(videosToShow);
   }, [selectedCategory, videos]);
 
-  const handleClick = ({ generateMathVideo }) => {
+  const handleClick = ({generateMathVideo}) => {
     setGenerateMathVideo(generateMathVideo);
     if (!session) {
-      router.push("/auth/signin");
+      router.push("/login");
       return;
     }
     if (prompt.length < 1) {
@@ -182,11 +182,11 @@ export default function Home() {
     // Clear error if input is valid
     let grade = 4;
 
-    generateVideoMutation.mutate({ prompt, grade, generateMathVideo });
+    generateVideoMutation.mutate({prompt, grade, generateMathVideo});
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       <div className="pt-20">
         <MaxWidthWrapper>
           <div>

@@ -50,7 +50,6 @@ export default function LoginPage() {
         ...values,
         redirect: false,
       });
-      console.log(response);
       if (response.error) {
         throw new Error(response.error);
       }
@@ -63,6 +62,7 @@ export default function LoginPage() {
     } catch (error) {
       console.log(error);
       toast({
+        variant: "destructive",
         title: "Error logging in",
         description: "Invalid email or password",
       });
